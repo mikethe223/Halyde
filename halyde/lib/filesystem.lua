@@ -4,7 +4,7 @@ local component
 if loadfile then
   component = loadfile("/halyde/lib/component.lua")(loadfile)
 else
-  component = require("component")
+  component = import("component")
 end
 
 local filesystem = {}

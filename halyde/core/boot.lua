@@ -1,7 +1,7 @@
 local loadfile = ...
 local filesystem = loadfile("/halyde/lib/filesystem.lua")(loadfile)
 
-_G._OSVERSION = "Halyde 0.1.0"
+_G._OSVERSION = "Halyde 0.2.0"
 
 function _G.import(module, ...)
   local args = table.pack(...)
@@ -21,7 +21,7 @@ function _G.import(module, ...)
     tmpdata = handle:read(math.huge or math.maxinteger)
     data = data .. (tmpdata or "")
   until not tmpdata
-  assert(load(data, "="..modulepath))(table.unpack(args))
+  return(assert(load(data, "="..modulepath))(table.unpack(args)))
 end
 
 --local handle = assert(filesystem.open("/bazinga.txt", "w"))

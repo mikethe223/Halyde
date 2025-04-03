@@ -1,0 +1,2 @@
+/halyde/core/shell.lua
+/halyde/core/evmgr.lua
