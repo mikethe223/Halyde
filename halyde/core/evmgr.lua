@@ -2,15 +2,17 @@ _G.evmgr = {}
 _G.evmgr.eventQueue = {}
 local maxEventQueueLength = 10 -- increase if events start getting dropped
 
---local ocelot = component.proxy(component.list("ocelot")())
+local ocelot = component.proxy(component.list("ocelot")())
 
 while true do
   local args
   repeat
     args = computer.pullSignal(0)
     if args then
-      table.insert(evmgr.eventQueue, table.pack(computer.uptime(), args))
+      ocelot.log("Sending signal "..args..","..computer.uptime())
+      table.insert(evmgr.eventQueue, {computer.uptime(),args})
       while #evmgr.eventQueue > maxEventQueueLength do
+        ocelot.log("Queue length breach, removing first signal")
         table.remove(evmgr.eventQueue, 1)
       end
       --ocelot.log("Event queue:")
