@@ -13,8 +13,12 @@ function _G.cormgr.loadCoroutine(path)
 end
 
 function handleError(errormsg)
-  -- nothing for now
-  assert(false, errormsg)
+  if errormsg~=nil then
+    -- nothing for now
+    error(tostring(errormsg))
+  else
+    error("An error has occured, but given as 'nil'.")
+  end
 end
 
 local function runCoroutines()
@@ -41,11 +45,14 @@ repeat
 until not tmpdata
 for line in data:gmatch("([^\n]*)\n?") do
   if line ~= "" then
+    --[[ if _G.print then
+      print(line)
+    end ]]
     _G.cormgr.loadCoroutine(line)
     runCoroutines()
   end
 end
-_G.cormgr.loadCoroutine("/halyde/core/shell.lua")
+-- _G.cormgr.loadCoroutine("/halyde/core/shell.lua")
 
 while true do
   runCoroutines()

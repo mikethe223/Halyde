@@ -6,6 +6,6 @@ local event = import("event")
 print("\n │\n │ ".._OSVERSION..'\n │ Welcome! Type "help" to get started.\n │')
 while true do
   --coroutine.yield()
-  local args = table.pack(event.pull("key_down"))
+  local args = {event.pull("key_down")}
   --ocelot.log(tostring(args[1]))
 end
