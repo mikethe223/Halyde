@@ -2,30 +2,33 @@ local event = {}
 
 local ocelot = component.proxy(component.list("ocelot")())
 
-function event.pull(evtype, timeout)
+function event.pull(evtype, ...)
+  local timeout = ...
   checkArg(1, evtype, "string", "nil")
   checkArg(2, timeout, "number", "nil")
   local startTime = computer.uptime()
-  local args
+  local args = {}
+  local finished = false
   repeat
     for i = 1, #evmgr.eventQueue do
-      ocelot.log(tostring(evmgr.eventQueue[i][1]).." ("..type(evmgr.eventQueue[i][1]).."), "..tostring(evmgr.eventQueue[i][2]))
-      --ocelot.log(tostring(evmgr.eventQueue[i][3]))
-      --ocelot.log(tostring(evmgr.eventQueue[i][4]))
-      if evmgr.eventQueue[i][1] >= startTime and (evmgr.eventQueue[i][2] == evtype or not evtype) then
-        args = evmgr.eventQueue[i]
+      if evmgr.eventQueue[i][2] == evtype or not evtype then
+        args = table.copy(evmgr.eventQueue[i])
+        table.remove(evmgr.eventQueue, i)
         break
       end
     end
-    if not args then
+    if evtype then
+      finished = args[1] == evtype
+    end
+    if timeout then
+      finished = computer.uptime() >= startTime + timeout
+    end
+    if not finished then
       coroutine.yield()
     end
-  until args and not timeout or args and timeout and (args or computer.uptime() >= startTime + timeout)
-  if args then
-    --[[ table.remove(args, 1)
-    return table.unpack(args) ]]
-    return args[2]
-  end
+  until finished
+  ocelot.log(tostring(args[1]))
+  return table.unpack(args)
 end
 
 return event

@@ -7,21 +7,16 @@ local ocelot = component.proxy(component.list("ocelot")())
 while true do
   local args
   repeat
-    args = computer.pullSignal(0)
-    if args then
-      ocelot.log("Sending signal "..args..","..computer.uptime())
-      table.insert(evmgr.eventQueue, {computer.uptime(),args})
+    args = {computer.pullSignal(0)}
+    if args and args[1] then
+      --ocelot.log("Sending signal "..args..","..computer.uptime())
+      table.insert(evmgr.eventQueue, args)
       while #evmgr.eventQueue > maxEventQueueLength do
-        ocelot.log("Queue length breach, removing first signal")
+        --ocelot.log("Queue length breach, removing first signal")
         table.remove(evmgr.eventQueue, 1)
       end
-      --ocelot.log("Event queue:")
-      for i = 1, #evmgr.eventQueue do
-        --ocelot.log("Args 1 and 2:")
-        --ocelot.log(tostring(evmgr.eventQueue[i][1]))
-        --ocelot.log(tostring(evmgr.eventQueue[i][2]))
-      end
     end
-  until not args
+  until not args or not args[1]
+  --ocelot.log("done")
   coroutine.yield()
 end

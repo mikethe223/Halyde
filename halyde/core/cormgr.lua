@@ -13,11 +13,10 @@ function _G.cormgr.loadCoroutine(path)
 end
 
 function handleError(errormsg)
-  if errormsg~=nil then
-    -- nothing for now
-    error(tostring(errormsg))
+  if errormsg == nil then
+    error("unknown error")
   else
-    error("An error has occured, but given as 'nil'.")
+    error(tostring(errormsg).."\n \n"..debug.traceback())
   end
 end
 
