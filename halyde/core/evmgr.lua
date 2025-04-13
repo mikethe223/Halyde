@@ -2,7 +2,7 @@ _G.evmgr = {}
 _G.evmgr.eventQueue = {}
 local maxEventQueueLength = 10 -- increase if events start getting dropped
 
-local ocelot = component.proxy(component.list("ocelot")())
+--local ocelot = component.proxy(component.list("ocelot")())
 
 while true do
   local args

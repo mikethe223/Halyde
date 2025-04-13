@@ -1,11 +1,16 @@
 import("termlib")
 local event = import("event")
 
---local ocelot = component.proxy(component.list("ocelot")())
+_G.shell = {}
+_G.shell.workingDirectory = "/"
 
-print("\n │\n │ ".._OSVERSION..'\n │ Welcome! Type "help" to get started.\n │')
+print("\n │\n │ ".._OSVERSION..'\n │ Welcome! Type "help" to get started.\n │\n ')
 while true do
   coroutine.yield()
+  print(shell.workingDirectory .. " >")
+  termlib.nextPosX = #(shell.workingDirectory .. " >  ")
+  termlib.nextPosY = termlib.nextPosY - 1
   read()
-  --ocelot.log(tostring(args[1]))
+  termlib.nextPosX = 1
+  print("no shell parser yet")
 end

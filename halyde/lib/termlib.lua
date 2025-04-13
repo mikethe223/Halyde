@@ -1,4 +1,3 @@
-
 local event = import("event")
 --local keyboard = import("keyboard")
 
@@ -32,21 +31,23 @@ function _G.clear()
 end
 
 function _G.read()
-  ocelot.log("reading")
   local curtext = ""
   local nextPosX, nextPosY = termlib.nextPosX, termlib.nextPosY
   while true do
     local args = {event.pull("key_down", 0.5)}
-    ocelot.log(tostring(args[1]))
     if args[4] then
       local keycode = args[4]
       local key = keyboard.keys[keycode]
-      if key == "back" then
-        curtext = curtext:sub(1, #curtext-1)
-      elseif key == "enter" then
-        return curtext
-      else
+      if args[3] >= 32 and args[3] <= 126 then
         curtext = curtext .. (unicode.char(args[3]) or "")
+      else
+        if key == "back" then
+          curtext = curtext:sub(1, #curtext-1)
+          termlib.nextPosX, termlib.nextPosY = nextPosX, nextPosY
+          print(curtext.." ")
+        elseif key == "enter" then
+          return curtext
+        end
       end
       termlib.nextPosX, termlib.nextPosY = nextPosX, nextPosY
       print(curtext)
