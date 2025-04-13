@@ -4,7 +4,10 @@ local event = import("event")
 local gpu = component.proxy(component.list("gpu")()) -- replace with component.gpu once implemented
 local ocelot = component.proxy(component.list("ocelot")())
 _G.termlib = {}
-termlib.nextPosX, termlib.nextPosY = 1, 1
+termlib.nextPosX = 1
+termlib.nextPosY = 1
+termlib.cursorPosX = 1
+termlib.cursorPosY = 1
 
 function _G.print(text)
   local xRes, yRes = gpu.getResolution()
@@ -33,6 +36,7 @@ end
 function _G.read()
   local curtext = ""
   local nextPosX, nextPosY = termlib.nextPosX, termlib.nextPosY
+  local cursorWhite = true
   while true do
     local args = {event.pull("key_down", 0.5)}
     if args[4] then
@@ -40,6 +44,7 @@ function _G.read()
       local key = keyboard.keys[keycode]
       if args[3] >= 32 and args[3] <= 126 then
         curtext = curtext .. (unicode.char(args[3]) or "")
+        
       else
         if key == "back" then
           curtext = curtext:sub(1, #curtext-1)
@@ -51,6 +56,9 @@ function _G.read()
       end
       termlib.nextPosX, termlib.nextPosY = nextPosX, nextPosY
       print(curtext)
+    else
+      cursorWhite = not cursorWhite
+      
     end
   end
 end
