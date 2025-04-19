@@ -35,7 +35,7 @@ local function runCoroutines()
   end
 end
 
-local handle = filesystem.open("/halyde/config/startupapps.txt", "r")
+local handle = filesystem.open("/halyde/config/startupapps.cfg", "r")
 local data = ""
 local tmpdata
 repeat
