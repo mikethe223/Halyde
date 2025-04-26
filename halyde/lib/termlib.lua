@@ -2,7 +2,7 @@ local event = import("event")
 --local keyboard = import("keyboard")
 
 local gpu = component.proxy(component.list("gpu")()) -- replace with component.gpu once implemented
---local ocelot = component.proxy(component.list("ocelot")())
+local ocelot = component.proxy(component.list("ocelot")())
 _G.termlib = {}
 termlib.cursorPosX = 1
 termlib.cursorPosY = 1
@@ -34,24 +34,25 @@ local ANSIColorPalette = {
   }
 }
 
-defaultForegroundColor = ANSIColorPalette["dark"][7]
+defaultForegroundColor = ANSIColorPalette["bright"][7]
 defaultBackgroundColor = ANSIColorPalette["dark"][0]
 
 gpu.setForeground(defaultForegroundColor)
 gpu.setBackground(defaultBackgroundColor)
 
-function _G.scrollDown()
-  if gpu.copy(0,1,width,height-1,0,-1) then
-    gpu.set(0,height-1,string.rep(" ",width))
+local function scrollDown()
+  ocelot.log("scrolling")
+  if gpu.copy(0,1,width,height,0,-1) then
+    gpu.set(1,height,string.rep(" ",width))
+    termlib.cursorPosY=height
   end
 end
 
-function _G.newLine()
+local function newLine()
   termlib.cursorPosX=1
   termlib.cursorPosY = termlib.cursorPosY + 1
   if termlib.cursorPosY>height then
-    _G.scrollDown()
-    termlib.cursorPosY=height
+    scrollDown()
   end
 end
 
@@ -65,7 +66,7 @@ end
 
 function _G.print(text,endNewLine)
 
-  -- you don't know how tiring this took just for ANSI escape code support
+  -- you don't know how tiring this was just for ANSI escape code support
 
   if endNewLine==nil then
     endNewLine = true
@@ -170,21 +171,21 @@ function _G.read()
       local key = keyboard.keys[keycode]
       if args[3] >= 32 and args[3] <= 126 then
         curtext = curtext .. (unicode.char(args[3]) or "")
-        
       else
         if key == "back" then
           curtext = curtext:sub(1, #curtext-1)
           termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-          print(curtext.." ")
+          print(curtext.." ", false)
         elseif key == "enter" then
+          termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
+          print(curtext)
           return curtext
         end
       end
       termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-      print(curtext)
+      if curtext == "" then print(" ", false) else print(curtext, false) end
     else
       cursorWhite = not cursorWhite
-      
     end
   end
 end

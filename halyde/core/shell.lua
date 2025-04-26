@@ -5,7 +5,7 @@ local event = import("event")
 _G.shell = {}
 _G.shell.workingDirectory = "/"
 
-print("\n │\n │ ".._OSVERSION..'\n │ Welcome! Type "help" to get started.\n │\n ')
+print(shellcfg["startupMessage"])
 while true do
   coroutine.yield()
   -- print(shell.workingDirectory .. " >")
