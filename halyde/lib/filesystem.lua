@@ -11,7 +11,7 @@ local filesystem = {}
 
 function filesystem.processPath(path) -- returns the address and absolute path of a filesystem path as well as sanitizing it
   checkArg(1, path, "string")
-  absPath = path:gsub("/+", "/"):gsub("/$", "")
+  absPath = path:gsub("/+", "/")
   local address = nil
   if absPath:find("^/mnt/.../") then
      address = component.get(path:sub(6,8))
@@ -66,4 +66,12 @@ function filesystem.open(path, mode) -- opens a file and returns its handle
   return properHandle
 end
 
+function filesystem.list(path)
+  checkArg(1, path, "string")
+  local address, absPath = filesystem.processPath(path)
+  if not address then
+    return false
+  end
+  return component.invoke(address, "list", absPath)
+end
 return(filesystem)

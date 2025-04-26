@@ -2,7 +2,6 @@ local event = import("event")
 --local keyboard = import("keyboard")
 
 local gpu = component.proxy(component.list("gpu")()) -- replace with component.gpu once implemented
-local ocelot = component.proxy(component.list("ocelot")())
 _G.termlib = {}
 termlib.cursorPosX = 1
 termlib.cursorPosY = 1
@@ -41,7 +40,6 @@ gpu.setForeground(defaultForegroundColor)
 gpu.setBackground(defaultBackgroundColor)
 
 local function scrollDown()
-  ocelot.log("scrolling")
   if gpu.copy(0,1,width,height,0,-1) then
     gpu.set(1,height,string.rep(" ",width))
     termlib.cursorPosY=height
@@ -183,7 +181,7 @@ function _G.read()
         end
       end
       termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-      if curtext == "" then print(" ", false) else print(curtext, false) end
+      print(curtext, false)
     else
       cursorWhite = not cursorWhite
     end

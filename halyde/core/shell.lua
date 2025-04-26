@@ -1,9 +1,71 @@
 local shellcfg = import("/halyde/config/shell.cfg")
 import("termlib")
 local event = import("event")
+local ocelot = component.proxy(component.list("ocelot")())
+local filesystem = import("filesystem")
 
 _G.shell = {}
 _G.shell.workingDirectory = "/"
+
+local function parseCommand(command)
+  checkArg(1, command, "string")
+  local gm, result, args, trimmedCommand = command:gmatch('[^ ]+'), nil, {}, command
+  while true do
+    result = gm()
+    if not result then
+      break
+    end
+    if result:find('"') then
+      local location = trimmedCommand:find('"')
+      local argBefore = result:sub(1, result:find('"') - 1) -- edge case where there is no space before the quote, get the argument there
+      if argBefore and argBefore ~= "" then
+        table.insert(args, argBefore)
+      end
+      trimmedCommand = trimmedCommand:sub(location + 1)
+      if trimmedCommand:find('"') then
+        table.insert(args, trimmedCommand:sub(1, trimmedCommand:find('"') - 1))
+        trimmedCommand = trimmedCommand:sub(trimmedCommand:find('"') + 1)
+        gm = trimmedCommand:gmatch('[^ ]+')
+      else
+        print("\27[91mmalformed shell command")
+        return
+      end
+    else
+      table.insert(args, result)
+    end
+  end
+  -- execute the program
+  local foundfile = false
+  if filesystem.exists(args[1]) then
+    foundfile = true
+    local path = args[1]
+    table.remove(args, 1)
+    import(path, table.unpack(args))
+  else
+    for _, item in pairs(shellcfg["path"]) do
+      if filesystem.exists(item..args[1]) then
+        foundfile = true
+        local path = item..args[1]
+        table.remove(args, 1)
+        import(path, table.unpack(args))
+        break
+      else -- try to look for it without the file extension
+        local files = filesystem.list(item)
+        for _, file in pairs(files) do
+          if args[1] == file:match("(.+)%.[^%.]+$") then
+            foundfile = true
+            table.remove(args, 1)
+            import(item..file, table.unpack(args))
+            break
+          end
+        end
+      end
+    end
+  end
+  if not foundfile then
+    print("no such file or command: "..args[1])
+  end
+end
 
 print(shellcfg["startupMessage"])
 while true do
@@ -12,7 +74,7 @@ while true do
   print(shellcfg["prompt"]:format(shell.workingDirectory),false)
   -- termlib.cursorPosX = #(shell.workingDirectory .. " >  ")
   -- termlib.cursorPosY = termlib.cursorPosY - 1
-  read()
-  termlib.cursorPosX = 1
-  print("no shell parser yet")
+  local shellCommand = read()
+  ocelot.log("parsing "..shellCommand)
+  parseCommand(shellCommand)
 end
