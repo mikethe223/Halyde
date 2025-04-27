@@ -5,6 +5,7 @@ local gpu = component.proxy(component.list("gpu")()) -- replace with component.g
 _G.termlib = {}
 termlib.cursorPosX = 1
 termlib.cursorPosY = 1
+termlib.readHistory = {}
 
 local width, height = gpu.getResolution()
 termlib.width = width
@@ -165,25 +166,72 @@ function _G.clear()
   termlib.cursorPosX, termlib.cursorPosY = 1, 1
 end
 
-function _G.read()
+function _G.read(readHistoryType)
+  checkArg(1, readHistoryType, "string", "nil")
   local curtext = ""
+  local RHIndex
+  if readHistoryType then
+    if not termlib.readHistory[readHistoryType] then
+      termlib.readHistory[readHistoryType] = {curtext}
+    elseif termlib.readHistory[readHistoryType][#termlib.readHistory[readHistoryType]] ~= "" then
+      table.insert(termlib.readHistory[readHistoryType], curtext)
+    end
+    RHIndex = #termlib.readHistory[readHistoryType] -- read history index
+  end
   local cursorPosX, cursorPosY = termlib.cursorPosX, termlib.cursorPosY
   local cursorWhite = true
   while true do
+    if cursorWhite then
+      print("\27[107m ", false)
+    else
+      print(" ", false)
+    end
+    termlib.cursorPosX = termlib.cursorPosX - 1
     local args = {event.pull("key_down", 0.5)}
     if args[4] then
+      cursorWhite = true
       local keycode = args[4]
       local key = keyboard.keys[keycode]
+      if key == "up" and readHistoryType then
+        termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
+        print(curtext .. " ", false)
+        RHIndex = RHIndex - 1
+        if RHIndex <= 0 then
+          RHIndex = 1
+        end
+        termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
+        print(termlib.readHistory[readHistoryType][RHIndex] .. string.rep(" ", unicode.wlen(curtext) - unicode.wlen(termlib.readHistory[readHistoryType][RHIndex])), false)
+        curtext = termlib.readHistory[readHistoryType][RHIndex]
+      end
+      if key == "down" and readHistoryType then
+        termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
+        print(curtext .. " ", false)
+        RHIndex = RHIndex + 1
+        if RHIndex > #termlib.readHistory[readHistoryType] then
+          RHIndex = #termlib.readHistory[readHistoryType]
+        end
+        termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
+        print(termlib.readHistory[readHistoryType][RHIndex] .. string.rep(" ", unicode.wlen(curtext) - unicode.wlen(termlib.readHistory[readHistoryType][RHIndex])), false)
+        curtext = termlib.readHistory[readHistoryType][RHIndex]
+      end
       if args[3] >= 32 and args[3] <= 126 then
         curtext = curtext .. (unicode.char(args[3]) or "")
+        if readHistoryType then
+          termlib.readHistory[readHistoryType][RHIndex] = curtext
+        end
       else
         if key == "back" then
           curtext = curtext:sub(1, #curtext-1)
           termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-          print(curtext.." ", false)
+          print(curtext.."  ", false)
         elseif key == "enter" then
           termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-          print(curtext)
+          print(curtext .. " ")
+          if readHistoryType then
+            while #termlib.readHistory[readHistoryType] > 50 do
+              table.remove(termlib.readHistory[readHistoryType], 1)
+            end
+          end
           return curtext
         end
       end

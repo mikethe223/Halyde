@@ -90,6 +90,6 @@ while true do
   print(shellcfg["prompt"]:format(shell.workingDirectory),false)
   -- termlib.cursorPosX = #(shell.workingDirectory .. " >  ")
   -- termlib.cursorPosY = termlib.cursorPosY - 1
-  local shellCommand = read()
+  local shellCommand = read("shell")
   shell.run(shellCommand)
 end

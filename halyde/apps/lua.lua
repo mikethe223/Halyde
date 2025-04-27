@@ -1,8 +1,9 @@
 print("\27[44m".._VERSION.."\27[0m shell")
 print('Type "exit" to exit.')
+termlib.readHistory["lua"] = {""}
 while true do
   print("\27[44mlua>\27[0m ", false)
-  local command = read()
+  local command = read("lua")
   if command == "exit" then
     return
   else
