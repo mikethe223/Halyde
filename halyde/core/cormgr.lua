@@ -28,7 +28,7 @@ local function runCoroutines()
     end
     if coroutine.status(_G.cormgr.corList[i]) == "dead" then
       table.remove(_G.cormgr.corList, i)
-      break
+      i = i - 1
     end
     --computer.pullSignal(0)
     --coroutine.yield()

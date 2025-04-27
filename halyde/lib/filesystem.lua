@@ -3,7 +3,7 @@ local component
 
 if loadfile then
   component = loadfile("/halyde/lib/component.lua")(loadfile)
-else
+elseif import then
   component = import("component")
 end
 
@@ -68,10 +68,101 @@ end
 
 function filesystem.list(path)
   checkArg(1, path, "string")
+  if path == "/mnt/" then
+    -- list drives
+    local returnTable = {}
+    for address, _ in component.list("filesystem") do
+      table.insert(returnTable, address:sub(1, 3) .. "/")
+    end
+    return returnTable
+  else
+    local address, absPath = filesystem.processPath(path)
+    if not address then
+      return false
+    end
+    return component.invoke(address, "list", absPath)
+  end
+end
+
+function filesystem.size(path)
+  checkArg(1, path, "string")
   local address, absPath = filesystem.processPath(path)
   if not address then
     return false
   end
-  return component.invoke(address, "list", absPath)
+  return component.invoke(address, "size", absPath)
 end
+
+function filesystem.isDirectory(path)
+  checkArg(1, path, "string")
+  local address, absPath = filesystem.processPath(path)
+  if not address then
+    return false
+  end
+  return component.invoke(address, "isDirectory", absPath)
+end
+
+function filesystem.rename(fromPath, toPath)
+  checkArg(1, fromPath, "string")
+  checkArg(2, toPath, "string")
+  local fromAddress, fromAbsPath = filesystem.processPath(fromPath)
+  local toAddress, toAbsPath = filesystem.processPath(toPath)
+  if not fromAddress or not toAddress then
+    return false
+  end
+  if fromAddress == toAddress then
+    return component.invoke(fromAddress, "rename", fromAbsPath, toAbsPath)
+  else
+    local handle = component.invoke(fromAddress, "open", fromAbsPath, "r")
+    local data, tmpdata
+    repeat
+      tmpdata = component.invoke(fromAddress, "read", handle, math.huge or math.maxinteger)
+      data = data .. (tmpdata or "")
+    until not tmpdata
+    tmpdata = component.invoke(fromAddress, "close", handle)
+    local handle = component.invoke(toAddress, "open", toAbsPath, "w")
+    component.invoke(toAddress, "write", handle, data)
+    component.invoke(toAddress, "close", handle)
+    component.invoke(fromAddress, "remove", fromAbsPath)
+  end
+end
+
+function filesystem.copy(fromPath, toPath)
+  checkArg(1, fromPath, "string")
+  checkArg(2, toPath, "string")
+  local fromAddress, fromAbsPath = filesystem.processPath(fromPath)
+  local toAddress, toAbsPath = filesystem.processPath(toPath)
+  if not fromAddress or not toAddress then
+    return false
+  end
+  local handle = component.invoke(fromAddress, "open", fromAbsPath, "r")
+  local data, tmpdata = "", nil
+  repeat
+    tmpdata = component.invoke(fromAddress, "read", handle, math.huge or math.maxinteger)
+    data = data .. (tmpdata or "")
+  until not tmpdata
+  tmpdata = component.invoke(fromAddress, "close", handle)
+  local handle = component.invoke(toAddress, "open", toAbsPath, "w")
+  component.invoke(toAddress, "write", handle, data)
+  component.invoke(toAddress, "close", handle)
+end
+
+function filesystem.isDirectory(path)
+  checkArg(1, path, "string")
+  local address, absPath = filesystem.processPath(path)
+  if not address then
+    return false
+  end
+  return component.invoke(address, "isDirectory", absPath)
+end
+
+function filesystem.remove(path)
+  checkArg(1, path, "string")
+  local address, absPath = filesystem.processPath(path)
+  if not address then
+    return false
+  end
+  return component.invoke(address, "remove", absPath)
+end
+
 return(filesystem)

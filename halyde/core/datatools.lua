@@ -1,7 +1,21 @@
+local conversionTables = {
+  ["bytes"] = {
+    ["B"] = 1,
+    ["KB"] = 1000,
+    ["MB"] = 1000000,
+    ["GB"] = 1000000000
+  }, ["bibytes"] = {
+    ["B"] = 1,
+    ["KiB"] = 1024,
+    ["MiB"] = 1048576,
+    ["GiB"] = 1073741824
+  }
+}
+
 function table.find(table, item)
   for k, v in pairs(table) do
     if v == item then
-      return(v)
+      return k
     end
   end
 end
@@ -19,4 +33,13 @@ function table.copy(orig)
     copy = orig
   end
   return copy
+end
+
+function convert(amount, fromUnit, toUnit)
+  for _, convTable in pairs(conversionTables) do
+    if convTable[toUnit] then
+      return amount / convTable[toUnit] * convTable[fromUnit]
+    end
+  end
+  return false, "unit does not exist"
 end

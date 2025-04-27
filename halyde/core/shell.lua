@@ -1,15 +1,19 @@
 local shellcfg = import("/halyde/config/shell.cfg")
-import("termlib")
+import("/halyde/core/termlib.lua")
 local event = import("event")
-local ocelot = component.proxy(component.list("ocelot")())
+--local ocelot = component.proxy(component.list("ocelot")())
 local filesystem = import("filesystem")
 
 _G.shell = {}
-_G.shell.workingDirectory = "/"
+_G.shell.workingDirectory = shellcfg["defaultWorkingDirectory"]
+_G.shell.aliases = shellcfg["aliases"]
 
 local function parseCommand(command)
-  checkArg(1, command, "string")
-  local gm, result, args, trimmedCommand = command:gmatch('[^ ]+'), nil, {}, command
+  if shell.aliases[command:match("[^ ]+")] then
+    local _, cmdend = command:find("[^ ]+")
+    command = shell.aliases[command:match("[^ ]+")] .. command:sub(cmdend + 1)
+  end
+  local gm, result, args, trimmedCommand = command:gmatch("[^ ]+"), nil, {}, command
   while true do
     result = gm()
     if not result then
@@ -63,7 +67,7 @@ local function parseCommand(command)
     end
   end
   if not foundfile then
-    print("no such file or command: "..args[1])
+    print("No such file or command: "..args[1])
   end
 end
 
@@ -75,6 +79,5 @@ while true do
   -- termlib.cursorPosX = #(shell.workingDirectory .. " >  ")
   -- termlib.cursorPosY = termlib.cursorPosY - 1
   local shellCommand = read()
-  ocelot.log("parsing "..shellCommand)
   parseCommand(shellCommand)
 end

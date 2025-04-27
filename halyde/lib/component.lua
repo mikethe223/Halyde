@@ -1,4 +1,9 @@
-local componentlib = {}
+local componentlib
+if table.copy then
+  componentlib = table.copy(component)
+else
+  componentlib = {}
+end
 
 function componentlib.get(address)
   checkArg(1, address, "string")

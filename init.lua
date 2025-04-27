@@ -10,7 +10,7 @@ local function loadfile(file)
     data = data .. (tmpdata or "")
   until not tmpdata
   component.invoke(computer.getBootAddress(), "close", handle)
-  return(assert(load(data, "=" .. file)))
+  return assert(load(data, "=" .. file))
 end
 
 local function handleError(errorMessage)

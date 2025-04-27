@@ -73,6 +73,7 @@ function _G.print(text,endNewLine)
   if not text or not tostring(text) then
     return
   end
+  text = "\27[0m" .. text:gsub("\t", "  ")
   text = tostring(text)
   readBreak = 0
   -- readBreak is for when, inside the for loop, there normally would have been an increase in the "i" variable because it has read more than one character.
