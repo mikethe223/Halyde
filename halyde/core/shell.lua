@@ -8,7 +8,8 @@ _G.shell = {}
 _G.shell.workingDirectory = shellcfg["defaultWorkingDirectory"]
 _G.shell.aliases = shellcfg["aliases"]
 
-local function parseCommand(command)
+function _G.shell.run(command)
+  checkArg(1, command, "string")
   if shell.aliases[command:match("[^ ]+")] then
     local _, cmdend = command:find("[^ ]+")
     command = shell.aliases[command:match("[^ ]+")] .. command:sub(cmdend + 1)
@@ -79,5 +80,5 @@ while true do
   -- termlib.cursorPosX = #(shell.workingDirectory .. " >  ")
   -- termlib.cursorPosY = termlib.cursorPosY - 1
   local shellCommand = read()
-  parseCommand(shellCommand)
+  shell.run(shellCommand)
 end

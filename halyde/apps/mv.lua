@@ -15,11 +15,8 @@ end
 if not fs.exists(fromFile) then
   print("\27[91mSource file does not exist.")
 end
-if fs.exists(toFile) then
-  print("Destination file already exists. Overwrite it? [Y/n] ", false)
-  if read():lower() == "n" then
-    print("Aborted.")
-    return
-  end
+if fs.exists(toFile) and not (table.find(args, "-o") or table.find(args, "--overwrite")) then
+  print("\27[91mDestination file already exists. Run this command again with -o to overwrite it.")
+  return
 end
 fs.rename(fromFile, toFile)

@@ -1,0 +1,10 @@
+Usage: rm [FLAGS] [PATH]
+Removes files and directories.
+
+  -r, --recursive   Removes directories and their contents recursively.
+  -f, --force       Ignores nonexistent files or directories.
+  PATH              Specifies the file to be moved/renamed.
+
+Examples:
+  rm a.txt                 Removes a.txt in the current shell working directory.
+  rm -r -f /halyde/core/   Removes everything in /halyde/core forcedly and recursively. Note that trying this on a real machine will remove critical Halyde system files and cause it to stop working.

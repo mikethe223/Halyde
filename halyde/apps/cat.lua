@@ -2,7 +2,10 @@ local args = {...}
 local file = args[1]
 args = nil
 local fs = import("filesystem")
-
+if not file then
+  shell.run("help cat")
+  return
+end
 if file:sub(1, 1) ~= "/" then
   file = shell.workingDirectory .. file
 end
