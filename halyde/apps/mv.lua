@@ -3,6 +3,10 @@ local fromFile, toFile = args[1], args[2]
 args = nil
 local fs = import("filesystem")
 
+if not fromFile or not toFile then
+  shell.run("help mv")
+  return
+end
 if fromFile:sub(1, 1) ~= "/" then
   fromFile = shell.workingDirectory .. fromFile
 end

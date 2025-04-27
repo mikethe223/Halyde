@@ -41,7 +41,13 @@ gpu.setBackground(defaultBackgroundColor)
 
 local function scrollDown()
   if gpu.copy(0,1,width,height,0,-1) then
-    gpu.set(1,height,string.rep(" ",width))
+    local prevForeground = gpu.getForeground()
+    local prevBackground = gpu.getBackground()
+    gpu.setForeground(defaultForegroundColor)
+    gpu.setBackground(defaultBackgroundColor)
+    gpu.fill(1, height, width, 1, " ")
+    gpu.setForeground(prevForeground)
+    gpu.setBackground(prevBackground)
     termlib.cursorPosY=height
   end
 end

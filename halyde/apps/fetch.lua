@@ -1,4 +1,5 @@
-termlib.cursorPosY = termlib.cursorPosY + 2
+print("")
+print("")
 print(" \27[93m┌┬┐ ┌┐  ┌┐  \n ││├─┤├┬┬┘├─┐\n │┐├┘││││││││\n ││││││││││┌┤\n └┴┴─┴┼┐├─┴─┘\n      └─┘    ")
 termlib.cursorPosX, termlib.cursorPosY = 17, termlib.cursorPosY - 8
 print("\27[92mOS\27[0m: ".._OSVERSION)

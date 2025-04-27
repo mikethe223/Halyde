@@ -3,6 +3,9 @@ local directory = args[1]
 args = nil
 local fs = import("filesystem")
 
+if not directory then
+  return
+end
 if directory == ".." then
   local backDirectory = shell.workingDirectory:match("(.+)/.-/")
   if backDirectory then

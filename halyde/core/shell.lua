@@ -41,6 +41,9 @@ function _G.shell.run(command)
   end
   -- execute the program
   local foundfile = false
+  if not args[1] then
+    return
+  end
   if filesystem.exists(args[1]) then
     foundfile = true
     local path = args[1]
@@ -60,7 +63,15 @@ function _G.shell.run(command)
           if args[1] == file:match("(.+)%.[^%.]+$") then
             foundfile = true
             table.remove(args, 1)
-            import(item..file, table.unpack(args))
+            local function runCommand()
+              import(item..file, table.unpack(args))
+            end
+            local result, reason = xpcall(runCommand, function(errMsg)
+              return errMsg .. "\n\n" .. debug.traceback()
+            end)
+            if not result then
+              print("\27[91m" .. reason)
+            end
             break
           end
         end
