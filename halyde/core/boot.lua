@@ -1,7 +1,7 @@
 local loadfile = ...
 local filesystem = loadfile("/halyde/lib/filesystem.lua")(loadfile)
 
-_G._OSVERSION = "Halyde 0.8.2"
+_G._OSVERSION = "Halyde 0.8.3"
 
 function _G.import(module, ...)
   local args = table.pack(...)
