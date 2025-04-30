@@ -1,4 +1,6 @@
-function drawPixel(x, y, bg, fg)
+local raster = {util = {}}
+
+function raster.drawPixel(x, y, bg, fg)
     -- get original character for "merging"
     local char = gpu.get(x, y)[0]
     if bg ~= nil then gpu.setBackground(bg) end
@@ -20,19 +22,21 @@ function drawPixel(x, y, bg, fg)
     ocelot.log(char)
 end
 
-function XY2Braille(x, y)
+function raster.util.XY2Braille(x, y)
     return math.floor(x/2), math.floor(y/4)
 end
-function Braille2XY(x, y)
+function raster.util.Braille2XY(x, y)
     return math.floor(x*2), math.floor(y*4)
 end
-function getBit(a, which) 
+function raster.util.getBit(a, which) 
     return 1 == ((a >> which) & 1);
 end
-function formByte(a)
+function raster.util.formByte(a)
     local x = 0
     for i = 1, 8 do
         x = x+(a[i]<<i)
     end
     return x
 end
+
+return raster
