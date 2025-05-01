@@ -21,12 +21,13 @@ function raster.drawPixel(x, y, newbg, newfg)
     end
     ocelot.log(tostring(newi))
     newchar = char|(1<<newi) -- boom and its combined
+    if newchar < 0x2800 then newchar = newchar+0x2800 end
     ocelot.log(tostring(newchar))
-    -- termlib.cursorPosX = math.floor(x/2) -- math.floor() for good measure
-    -- termlib.cursorPosY = math.floor(y/4)
+    termlib.cursorPosX = math.floor(x/2) -- math.floor() for good measure
+    termlib.cursorPosY = math.floor(y/4)
     if newbg == nil then gpu.setBackground(bg) else gpu.setBackground(newbg) end
     if newfg == nil then gpu.setForeground(fg) else gpu.setForeground(newfg) end
-    print(string.byte(newchar), false, false)
+    print(utf8.char(newchar), false, false)
     -- print it without newline or wrapping 
     -- (in case someone wants to draw a pixel off-screen. why would you do that?)
 end
