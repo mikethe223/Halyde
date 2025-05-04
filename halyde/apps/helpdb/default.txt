@@ -10,6 +10,7 @@ All current Halyde shell commands:
   lua     Starts the Lua shell.
   mv      Moves/renames a file.
   rm      Deletes a file.
+  edit    Opens the text editor.
 
 You can get additional information on any app or command by running:
   help [COMMAND]
