@@ -24,6 +24,6 @@ else
   if fs.exists(directory) and fs.isDirectory(directory) or fs.exists(shell.workingDirectory .. directory) and fs.isDirectory(shell.workingDirectory .. directory) then
     shell.workingDirectory = directory
   else
-    print("error: no such directory")
+    print("\27[91mNo such directory.")
   end
 end

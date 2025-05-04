@@ -1,6 +1,7 @@
 local event = import("event")
 --local keyboard = import("keyboard")
 
+--local ocelot = component.proxy(component.list("ocelot")())
 local gpu = component.proxy(component.list("gpu")()) -- replace with component.gpu once implemented
 _G.termlib = {}
 termlib.cursorPosX = 1
@@ -41,7 +42,7 @@ gpu.setForeground(defaultForegroundColor)
 gpu.setBackground(defaultBackgroundColor)
 
 local function scrollDown()
-  if gpu.copy(0,1,width,height,0,-1) then
+  if gpu.copy(1,1,width,height,0,-1) then
     local prevForeground = gpu.getForeground()
     local prevBackground = gpu.getBackground()
     gpu.setForeground(defaultForegroundColor)
@@ -61,7 +62,7 @@ local function newLine()
   end
 end
 
-function parseCodeNumbers(code)
+local function parseCodeNumbers(code)
   o = {}
   for num in code:sub(3,-2):gmatch("[^;]+") do
     table.insert(o,tonumber(num))
@@ -69,12 +70,15 @@ function parseCodeNumbers(code)
   return o
 end
 
-function _G.print(text,endNewLine)
+function _G.print(text, endNewLine, wordWrap)
 
   -- you don't know how tiring this was just for ANSI escape code support
 
-  if endNewLine==nil then
+  if endNewLine == nil then
     endNewLine = true
+  end
+  if wordWrap == nil then
+    wordWrap = true
   end
 
   if not text or not tostring(text) then
@@ -93,7 +97,7 @@ function _G.print(text,endNewLine)
     end
     gpu.set(termlib.cursorPosX,termlib.cursorPosY,section)
     termlib.cursorPosX = termlib.cursorPosX+unicode.wlen(section)
-    if termlib.cursorPosX>width then
+    if termlib.cursorPosX>width and wordWrap then
       newLine()
     end
     section=""
@@ -162,13 +166,18 @@ end
 
 function _G.clear()
   local xRes, yRes = gpu.getResolution()
+  gpu.setForeground(defaultForegroundColor)
+  gpu.setBackground(defaultBackgroundColor)
   gpu.fill(1,1,xRes,yRes," ")
   termlib.cursorPosX, termlib.cursorPosY = 1, 1
 end
 
-function _G.read(readHistoryType)
+function _G.read(readHistoryType, prefix, defaultText)
   checkArg(1, readHistoryType, "string", "nil")
-  local curtext = ""
+  checkArg(2, prefix, "string", "nil")
+  checkArg(3, defaultText, "string", "nil")
+  local curtext = defaultText or ""
+  local prefix = prefix or ""
   local RHIndex
   if readHistoryType then
     if not termlib.readHistory[readHistoryType] then
@@ -179,13 +188,10 @@ function _G.read(readHistoryType)
     RHIndex = #termlib.readHistory[readHistoryType] -- read history index
   end
   local cursorPosX, cursorPosY = termlib.cursorPosX, termlib.cursorPosY
+  print(prefix .. curtext .. "\27[107m ", false)
   local cursorWhite = true
   while true do
-    if cursorWhite then
-      print("\27[107m ", false)
-    else
-      print(" ", false)
-    end
+    --ocelot.log(curtext)
     termlib.cursorPosX = termlib.cursorPosX - 1
     local args = {event.pull("key_down", 0.5)}
     if args[4] then
@@ -194,51 +200,56 @@ function _G.read(readHistoryType)
       local key = keyboard.keys[keycode]
       if key == "up" and readHistoryType then
         termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-        print(curtext .. " ", false)
+        print(prefix .. curtext .. " ", false)
         RHIndex = RHIndex - 1
         if RHIndex <= 0 then
           RHIndex = 1
         end
         termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-        print(termlib.readHistory[readHistoryType][RHIndex] .. string.rep(" ", unicode.wlen(curtext) - unicode.wlen(termlib.readHistory[readHistoryType][RHIndex])), false)
+        print(prefix .. termlib.readHistory[readHistoryType][RHIndex] .. string.rep(" ", unicode.wlen(curtext) - unicode.wlen(termlib.readHistory[readHistoryType][RHIndex])), false)
         curtext = termlib.readHistory[readHistoryType][RHIndex]
       end
       if key == "down" and readHistoryType then
         termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-        print(curtext .. " ", false)
+        print(prefix .. curtext .. " ", false)
         RHIndex = RHIndex + 1
         if RHIndex > #termlib.readHistory[readHistoryType] then
           RHIndex = #termlib.readHistory[readHistoryType]
         end
         termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-        print(termlib.readHistory[readHistoryType][RHIndex] .. string.rep(" ", unicode.wlen(curtext) - unicode.wlen(termlib.readHistory[readHistoryType][RHIndex])), false)
+        print(prefix .. termlib.readHistory[readHistoryType][RHIndex] .. string.rep(" ", unicode.wlen(curtext) - unicode.wlen(termlib.readHistory[readHistoryType][RHIndex])), false)
         curtext = termlib.readHistory[readHistoryType][RHIndex]
+      end
+      if key == "back" then
+        curtext = curtext:sub(1, #curtext-1)
+        termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
+        print(prefix .. curtext.."  ", false)
+      end
+      if key == "enter" then
+        termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
+        print(prefix .. curtext .. " ")
+        if readHistoryType then
+          while #termlib.readHistory[readHistoryType] > 50 do
+            table.remove(termlib.readHistory[readHistoryType], 1)
+          end
+        end
+        return curtext
       end
       if args[3] >= 32 and args[3] <= 126 then
         curtext = curtext .. (unicode.char(args[3]) or "")
         if readHistoryType then
           termlib.readHistory[readHistoryType][RHIndex] = curtext
         end
-      else
-        if key == "back" then
-          curtext = curtext:sub(1, #curtext-1)
-          termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-          print(curtext.."  ", false)
-        elseif key == "enter" then
-          termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-          print(curtext .. " ")
-          if readHistoryType then
-            while #termlib.readHistory[readHistoryType] > 50 do
-              table.remove(termlib.readHistory[readHistoryType], 1)
-            end
-          end
-          return curtext
-        end
       end
       termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-      print(curtext, false)
+      print(prefix .. curtext, false)
     else
       cursorWhite = not cursorWhite
+    end
+    if cursorWhite then
+      print("\27[107m ", false)
+    else
+      print(" ", false)
     end
   end
 end

@@ -48,7 +48,12 @@ function filesystem.open(path, mode) -- opens a file and returns its handle
     return nil, "invalid handle type"
   end
   local address, absPath = filesystem.processPath(path)
-  local handle = component.invoke(address, "open", absPath, mode)
+  local handleArgs = {component.invoke(address, "open", absPath, mode)}
+  local handle = handleArgs[1]
+  if not handle then
+    return table.unpack(handleArgs)
+  end
+  handleArgs = nil
   local properHandle = {}
   properHandle.handle = handle
   properHandle.address = address

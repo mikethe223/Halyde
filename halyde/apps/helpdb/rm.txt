@@ -7,4 +7,4 @@ Removes files and directories.
 
 Examples:
   rm a.txt                 Removes a.txt in the current shell working directory.
-  rm -r -f /halyde/core/   Removes everything in /halyde/core forcedly and recursively. Note that trying this on a real machine will remove critical Halyde system files and cause it to stop working.
+  rm -r -f /halyde/core/   Removes everything in /halyde/core/ forcedly and recursively.

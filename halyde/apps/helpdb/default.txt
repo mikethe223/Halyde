@@ -13,3 +13,6 @@ All current Halyde shell commands:
 
 You can get additional information on any app or command by running:
   help [COMMAND]
+
+In the help documentation, an asterisk (*) next to an argument means it is optional.
+This is excluding flags, which are all optional.

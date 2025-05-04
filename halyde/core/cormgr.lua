@@ -4,10 +4,25 @@ _G.cormgr.corList = {}
 --local ocelot = component.proxy(component.list("ocelot")())
 
 local filesystem = import("filesystem")
+local gpu = component.proxy(component.list("gpu")())
 
-function _G.cormgr.loadCoroutine(path)
+function _G.cormgr.loadCoroutine(path, ...)
+  local args = {...}
   local cor = coroutine.create(function()
-    import(path)
+    local result, errorMessage = xpcall(function(...)
+      import(...)
+    end, function(errorMessage)
+      return errorMessage .. "\n \n" .. debug.traceback()
+    end, path, table.unpack(args))
+    if not result then
+      if print then
+        gpu.freeAllBuffers()
+        print("\n\27[91m" .. errorMessage)
+      else
+        error(errorMessage)
+      end
+    end
+    --import(path, table.unpack(args))
   end)
   table.insert(_G.cormgr.corList, cor)
 end
@@ -22,16 +37,20 @@ end
 
 local function runCoroutines()
   for i = 1, #_G.cormgr.corList do
-    local result, errorMessage = coroutine.resume(_G.cormgr.corList[i])
-    if not result then
-      handleError(errorMessage)
+    if cormgr.corList[i] then
+      local result, errorMessage = coroutine.resume(cormgr.corList[i])
+      if cormgr.corList[i] then
+        if not result then
+          handleError(errorMessage)
+        end
+        if coroutine.status(cormgr.corList[i]) == "dead" then
+          table.remove(cormgr.corList, i)
+          i = i - 1
+        end
+        --computer.pullSignal(0)
+        --coroutine.yield()
+      end
     end
-    if coroutine.status(_G.cormgr.corList[i]) == "dead" then
-      table.remove(_G.cormgr.corList, i)
-      i = i - 1
-    end
-    --computer.pullSignal(0)
-    --coroutine.yield()
   end
 end
 

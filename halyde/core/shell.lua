@@ -3,10 +3,21 @@ import("/halyde/core/termlib.lua")
 local event = import("event")
 --local ocelot = component.proxy(component.list("ocelot")())
 local filesystem = import("filesystem")
+local gpu = component.proxy(component.list("gpu")())
 
 _G.shell = {}
 _G.shell.workingDirectory = shellcfg["defaultWorkingDirectory"]
 _G.shell.aliases = shellcfg["aliases"]
+
+local function runAsCoroutine(path, ...)
+  --ocelot.log("running " .. path .. " as coroutine")
+  cormgr.loadCoroutine(path, ...)
+  local corIndex = #cormgr.corList
+  local cor = cormgr.corList[#cormgr.corList]
+  repeat
+    coroutine.yield()
+  until cormgr.corList[corIndex] ~= cor
+end
 
 function _G.shell.run(command)
   checkArg(1, command, "string")
@@ -48,14 +59,14 @@ function _G.shell.run(command)
     foundfile = true
     local path = args[1]
     table.remove(args, 1)
-    import(path, table.unpack(args))
+    runAsCoroutine(path, table.unpack(args))
   else
     for _, item in pairs(shellcfg["path"]) do
       if filesystem.exists(item..args[1]) then
         foundfile = true
         local path = item..args[1]
         table.remove(args, 1)
-        import(path, table.unpack(args))
+        runAsCoroutine(path, table.unpack(args))
         break
       else -- try to look for it without the file extension
         local files = filesystem.list(item)
@@ -63,15 +74,7 @@ function _G.shell.run(command)
           if args[1] == file:match("(.+)%.[^%.]+$") then
             foundfile = true
             table.remove(args, 1)
-            local function runCommand()
-              import(item..file, table.unpack(args))
-            end
-            local result, reason = xpcall(runCommand, function(errMsg)
-              return errMsg .. "\n\n" .. debug.traceback()
-            end)
-            if not result then
-              print("\27[91m" .. reason)
-            end
+            runAsCoroutine(item..file, table.unpack(args))
             break
           end
         end
@@ -87,9 +90,10 @@ print(shellcfg["startupMessage"])
 while true do
   coroutine.yield()
   -- print(shell.workingDirectory .. " >")
-  print(shellcfg["prompt"]:format(shell.workingDirectory),false)
+  --print(shellcfg["prompt"]:format(shell.workingDirectory),false)
   -- termlib.cursorPosX = #(shell.workingDirectory .. " >  ")
   -- termlib.cursorPosY = termlib.cursorPosY - 1
-  local shellCommand = read("shell")
+  local shellCommand = read("shell", shellcfg["prompt"]:format(shell.workingDirectory))
   shell.run(shellCommand)
+  gpu.freeAllBuffers()
 end

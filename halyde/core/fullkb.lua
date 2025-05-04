@@ -1,5 +1,4 @@
-_G.keyboard = {pressedChars = {}, pressedCodes = {}}
-_G.keyboard.keys = {}
+_G.keyboard = {["keys"] = {}}
 
 keyboard.keys["1"]           = 0x02
 keyboard.keys["2"]           = 0x03
