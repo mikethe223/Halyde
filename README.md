@@ -4,7 +4,7 @@ A universal, customizable and feature-packed operating system for OpenComputers.
 ## Installation
 To install Halyde from OpenOS, simply run:
 
-`pastebin run xBtk6bFi`
+`pastebin run cwir7NH5`
 
 If for some reason that doesn't work, try:
 

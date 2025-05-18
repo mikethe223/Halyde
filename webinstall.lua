@@ -54,12 +54,7 @@ end
 
 -- installation
 local computer = require("computer")
-local oldFiles = {}
-for oldFile in fs.list(installLocation) do
-  if oldFile ~= "home/" then
-    table.insert(oldFiles, oldFile)
-  end
-end
+
 local function getFile(url)
   local request, data, tmpdata = nil, "", nil
   local status, errorMessage = pcall(function()
@@ -112,14 +107,31 @@ local function getFile(path)
     return data
   end
 end
-print("a")
 local webInstallConfig = getFile("https://raw.githubusercontent.com/Team-Cerulean-Blue/Halyde/refs/heads/main/argentum.cfg")
-print("a")
 webInstallConfig = load(webInstallConfig)
-print("a")
 webInstallConfig = webInstallConfig()
-print("a")
-installationOrder = {"halyde", "edit", "argentum"}
+local installationOrder = {"halyde", "edit", "argentum"}
+local oldFiles = {}
+for oldFile in fs.list(installLocation) do
+  local usedFlag = false
+  for i = 1, 3 do
+    for _, file in pairs(webInstallConfig[installationOrger[i]].files) do
+      if oldFile == file then
+        usedFlag = true
+      end
+    end
+    if webInstallConfig[installationOrger[i]].directories then
+      for _, dir in pairs(webInstallConfig[installationOrger[i]].directories) do
+        if oldFile == dir .. "/" then
+          usedFlag = true
+        end
+      end
+    end
+  end
+  if not usedFlag then
+    table.insert(oldFiles, oldFile)
+  end
+end
 for i = 1, 3 do
   local webInstallConfig = webInstallConfig[installationOrder[i]]
   print("a")
@@ -135,6 +147,9 @@ for i = 1, 3 do
     handle:write(getFile("https://raw.githubusercontent.com/Team-Cerulean-Blue/Halyde/refs/heads/main/" .. file))
     handle:close()
   end
+end
+for _, oldFile in pairs(oldFiles) do
+  fs.remove(oldFile)
 end
 computer.setBootAddress(component.get(installLocation:sub(6, -2)))
 computer.shutdown(true)
