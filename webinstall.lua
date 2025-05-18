@@ -136,4 +136,5 @@ for i = 1, 3 do
     handle:close()
   end
 end
+computer.setBootAddress(component.get(installLocation:sub(6, -2)))
 computer.shutdown(true)

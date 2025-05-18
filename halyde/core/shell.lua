@@ -1,7 +1,6 @@
 local shellcfg = import("/halyde/config/shell.cfg")
 import("/halyde/core/termlib.lua")
 local event = import("event")
-local ocelot = component.proxy(component.list("ocelot")())
 local filesystem = import("filesystem")
 local gpu = component.proxy(component.list("gpu")())
 
