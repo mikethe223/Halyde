@@ -1,7 +1,7 @@
 local shellcfg = import("/halyde/config/shell.cfg")
 import("/halyde/core/termlib.lua")
 local event = import("event")
---local ocelot = component.proxy(component.list("ocelot")())
+local ocelot = component.proxy(component.list("ocelot")())
 local filesystem = import("filesystem")
 local gpu = component.proxy(component.list("gpu")())
 
@@ -55,14 +55,14 @@ function _G.shell.run(command)
   if not args[1] then
     return
   end
-  if filesystem.exists(args[1]) then
+  if filesystem.exists(args[1]) and not filesystem.isDirectory(args[1]) then
     foundfile = true
     local path = args[1]
     table.remove(args, 1)
     runAsCoroutine(path, table.unpack(args))
   else
     for _, item in pairs(shellcfg["path"]) do
-      if filesystem.exists(item..args[1]) then
+      if filesystem.exists(item..args[1]) and not filesystem.isDirectory(item .. args[1]) then
         foundfile = true
         local path = item..args[1]
         table.remove(args, 1)
@@ -71,10 +71,10 @@ function _G.shell.run(command)
       else -- try to look for it without the file extension
         local files = filesystem.list(item)
         for _, file in pairs(files) do
-          if args[1] == file:match("(.+)%.[^%.]+$") then
+          if args[1] == file:match("(.+)%.[^%.]+$") and not filesystem.isDirectory(item .. file) then
             foundfile = true
             table.remove(args, 1)
-            runAsCoroutine(item..file, table.unpack(args))
+            runAsCoroutine(item .. file, table.unpack(args))
             break
           end
         end
@@ -86,14 +86,14 @@ function _G.shell.run(command)
   end
 end
 
-print(shellcfg["startupMessage"])
+print(shellcfg["startupMessage"]:format(shellcfg.splashMessages[math.random(1, #shellcfg.splashMessages)]))
 while true do
   coroutine.yield()
   -- print(shell.workingDirectory .. " >")
   --print(shellcfg["prompt"]:format(shell.workingDirectory),false)
   -- termlib.cursorPosX = #(shell.workingDirectory .. " >  ")
   -- termlib.cursorPosY = termlib.cursorPosY - 1
-  local shellCommand = read("shell", shellcfg["prompt"]:format(shell.workingDirectory))
+  local shellCommand = read("shell", shellcfg.prompt:format(shell.workingDirectory))
   shell.run(shellCommand)
   gpu.freeAllBuffers()
 end

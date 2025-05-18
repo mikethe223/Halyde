@@ -1,16 +1,17 @@
-All current Halyde shell commands:
-  cat     Concatenates and prints a file.
-  cd      Changes directory.
-  clear   Clears the screen.
-  cp      Copies a file.
-  echo    Prints a message.
-  fetch   Displays system information.
-  help    Shows this.
-  ls      Lists files.
-  lua     Starts the Lua shell.
-  mv      Moves/renames a file.
-  rm      Deletes a file.
-  edit    Opens the text editor.
+All default Halyde shell commands:
+  cat        Concatenates and prints a file.
+  cd         Changes directory.
+  clear      Clears the screen.
+  cp         Copies a file.
+  echo       Prints a message.
+  fetch      Displays system information.
+  help       Shows this.
+  ls         Lists files.
+  lua        Starts the Lua shell.
+  mv         Moves/renames a file.
+  rm         Deletes a file.
+  edit       Opens the text editor.
+  argentum   Uses the Argentum package manager.
 
 You can get additional information on any app or command by running:
   help [COMMAND]

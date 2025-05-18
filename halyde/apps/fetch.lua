@@ -14,7 +14,7 @@ print("\27[92mComponents\27[0m: "..tostring(componentCounter))
 termlib.cursorPosX = 17
 print("\27[92mCoroutines\27[0m: "..tostring(#cormgr.corList))
 termlib.cursorPosX = 17
-print("\27[92mBattery\27[0m: "..tostring(math.floor(computer.maxEnergy() / computer.energy() * 1000 + 0.5) / 10).."%")
+print("\27[92mBattery\27[0m: "..tostring(math.floor(computer.energy() / computer.maxEnergy() * 1000 + 0.5) / 10).."%")
 termlib.cursorPosX = 17
 local totalMemory = computer.totalMemory()
 local usedMemory = computer.totalMemory() - computer.freeMemory()

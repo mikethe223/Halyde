@@ -170,4 +170,13 @@ function filesystem.remove(path)
   return component.invoke(address, "remove", absPath)
 end
 
+function filesystem.makeDirectory(path)
+  checkArg(1, path, "string")
+  local address, absPath = filesystem.processPath(path)
+  if not address then
+    return false
+  end
+  return component.invoke(address, "makeDirectory", absPath)
+end
+
 return(filesystem)

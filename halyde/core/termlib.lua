@@ -70,19 +70,22 @@ local function parseCodeNumbers(code)
   return o
 end
 
-function _G.print(text, endNewLine, wordWrap)
+function _G.print(text, endNewLine, textWrap)
 
   -- you don't know how tiring this was just for ANSI escape code support
 
   if endNewLine == nil then
     endNewLine = true
   end
-  if wordWrap == nil then
-    wordWrap = true
+  if textWrap == nil then
+    textWrap = true
   end
 
   if not text or not tostring(text) then
     return
+  end
+  if text:find("\a") then
+    computer.beep()
   end
   text = "\27[0m" .. text:gsub("\t", "  ")
   text = tostring(text)
@@ -95,12 +98,17 @@ function _G.print(text, endNewLine, wordWrap)
     if #section==0 then
       return
     end
-    gpu.set(termlib.cursorPosX,termlib.cursorPosY,section)
-    termlib.cursorPosX = termlib.cursorPosX+unicode.wlen(section)
-    if termlib.cursorPosX>width and wordWrap then
-      newLine()
+    while true do
+      gpu.set(termlib.cursorPosX,termlib.cursorPosY,section)
+      termlib.cursorPosX = termlib.cursorPosX+unicode.wlen(section)
+      if unicode.wlen(section) > width and textWrap then
+        newLine()
+      else
+        break
+      end
+      section = section:sub(width + 1)
     end
-    section=""
+    section = ""
   end
 
   for i=1,#text do

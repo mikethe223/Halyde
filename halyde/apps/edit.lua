@@ -183,7 +183,7 @@ local function processEvent(args)
       changesMade = true
       cursorRenderFlag = true
       cursorWhite = true
-      if cursorPosY + scrollPosY - 1 > 1 then
+      if cursorPosX == 1 and cursorPosY + scrollPosY - 1 > 1 then
         cursorPosY = cursorPosY - 1
         if cursorPosY < 1 then
           scrollPosY = scrollPosY - 1
@@ -256,7 +256,11 @@ local function save()
   end
   local handle, errorMessage = fs.open(savepath, "w")
   if handle then
-    handle:write(table.concat(tmpdata, "\n"))
+    if table.concat(tmpdata, "\n"):sub(-1, -1) == "\n" then
+      handle:write(table.concat(tmpdata, "\n"))
+    else
+      handle:write(table.concat(tmpdata, "\n") .. "\n") -- add a newline at the end to follow POSIX standards
+    end
     handle:close()
     rawset(1, height - 1, "\27[107m\27[30m" .. filestring .. string.rep(" ", width))
   else
