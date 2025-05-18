@@ -12,7 +12,7 @@ for drive in fs.list("/mnt/") do
   table.insert(drives, drive)
 end
 if #drives == 1 and not component.invoke(component.get(drives[1]:sub(1, 3), "filesystem"), "isReadOnly") then
-  installLocation = drives[1]
+  installLocation = "/mnt/" .. drives[1]
 elseif #drives == 1 then
   io.stderr.write("All drives are read-only.\nHalyde cannot be installed.")
 else
