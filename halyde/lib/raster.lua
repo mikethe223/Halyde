@@ -142,10 +142,10 @@ function raster.update()
           raster.get(x,y),
           raster.get(x,y+1),
           raster.get(x,y+2),
-          raster.get(x,y+3),
           raster.get(x+1,y),
           raster.get(x+1,y+1),
           raster.get(x+1,y+2),
+          raster.get(x,y+3),
           raster.get(x+1,y+3)
         }
         local colorA = nil
@@ -318,7 +318,6 @@ function raster.drawEllipse(x1, y1, x2, y2, color)
     raster.set(xc + x, yc + y, color)
     raster.set(xc - x, yc + y, color)
     raster.set(xc + x, yc - y, color)
-    raster.set(xc - x, yc - y, color)
     
     if d1 < 0 then
       x = x + 1
