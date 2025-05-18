@@ -115,13 +115,13 @@ local oldFiles = {}
 for oldFile in fs.list(installLocation) do
   local usedFlag = false
   for i = 1, 3 do
-    for _, file in pairs(webInstallConfig[installationOrger[i]].files) do
+    for _, file in pairs(webInstallConfig[installationOrder[i]].files) do
       if oldFile == file then
         usedFlag = true
       end
     end
-    if webInstallConfig[installationOrger[i]].directories then
-      for _, dir in pairs(webInstallConfig[installationOrger[i]].directories) do
+    if webInstallConfig[installationOrder[i]].directories then
+      for _, dir in pairs(webInstallConfig[installationOrder[i]].directories) do
         if oldFile == dir .. "/" then
           usedFlag = true
         end
@@ -134,7 +134,6 @@ for oldFile in fs.list(installLocation) do
 end
 for i = 1, 3 do
   local webInstallConfig = webInstallConfig[installationOrder[i]]
-  print("a")
   if webInstallConfig.directories then
     for _, directory in pairs(webInstallConfig.directories) do
       print("Creating " .. directory .. "...")
@@ -151,5 +150,7 @@ end
 for _, oldFile in pairs(oldFiles) do
   fs.remove(oldFile)
 end
+
 computer.setBootAddress(component.get(installLocation:sub(6, -2)))
+component.invoke(component.get(installLocation:sub(6, -2)), "setLabel", "Halyde")
 computer.shutdown(true)
