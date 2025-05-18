@@ -1,5 +1,5 @@
 Usage: mkdir [PATH]
-Removes files and directories.
+Makes a directory.
 
   PATH   Specifies the path to create the directory in.
 

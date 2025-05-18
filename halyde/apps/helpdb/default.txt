@@ -8,6 +8,7 @@ All default Halyde shell commands:
   help       Shows this.
   ls         Lists files.
   lua        Starts the Lua shell.
+  mkdir      Makes a directory.
   mv         Moves/renames a file.
   rm         Deletes a file.
   edit       Opens the text editor.
