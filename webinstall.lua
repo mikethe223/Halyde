@@ -110,7 +110,7 @@ end
 local webInstallConfig = getFile("https://raw.githubusercontent.com/Team-Cerulean-Blue/Halyde/refs/heads/main/argentum.cfg")
 webInstallConfig = load(webInstallConfig)
 webInstallConfig = webInstallConfig()
-local installationOrder = {"halyde", "edit", "argentum"}
+local installationOrder = {"halyde", "edit", "argentum", "webinstall-extras"}
 local oldFiles = {}
 for oldFile in fs.list(installLocation) do
   local usedFlag = false
