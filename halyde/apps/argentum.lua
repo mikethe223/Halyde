@@ -125,7 +125,10 @@ local function doChecks(package)
   return true
 end
 
-local function installPackage(package)
+local function installPackage(package, overwriteFlag)
+  if not overwriteFlag then
+    overwriteFlag = false
+  end
   print("Installing " .. package .. "...")
   local agcfg = getAgConfig(package, source)
   if not agcfg then
@@ -176,7 +179,7 @@ local function installPackage(package)
         goto retry
       end
     end
-    if fs.exists(file) then
+    if fs.exists(file) and not overwriteFlag then
       if not fs.exists("/argentum/store/" .. package .. "/files/" .. file:match("(.*/)")) then
         fs.makeDirectory("/argentum/store/" .. package .. "/files/" .. file:match("(.*/)"))
       end
@@ -209,7 +212,7 @@ local function removePackage(package)
     data = data .. (tmpdata or "")
   until not tmpdata
   handle:close()
-  for line in (data.."\n"):gmatch("(.-)\n") do
+  for line in (data .. "\n"):gmatch("(.-)\n") do
     if line:sub(1, 1) == "A" then
       ::retry::
       print("  Removing " .. line:sub(2) .. "...")
@@ -255,7 +258,37 @@ local function removePackage(package)
   return true
 end
 
--- Update registry
+local function updatePackage(package)
+  print("Updating " .. package .. "...")
+  local agcfg = getAgConfig(package, source)
+  if not agcfg then
+    return false
+  end
+  local handle, data, tmpdata = fs.open("/argentum/store/" .. package .. "/package.cfg", "r"), "", nil
+  repeat
+    tmpdata = handle:read(math.huge)
+    data = data .. (tmpdata or "")
+  until not tmpdata
+  handle:close()
+  local oldFiles = {}
+  for line in (data .. "\n"):gmatch("(.-)\n") do
+    if agcfg[package].directories then
+      if not table.find(agcfg[package].files, line:sub(2)) and not table.find(agcfg[package].directories, line:sub(2, -2)) then
+        table.insert(oldFiles, line:sub(2))
+      end
+    else
+      if not table.find(agcfg[package].files, line:sub(2)) then
+        table.insert(oldFiles, line:sub(2))
+      end
+    end
+  end
+  for _, oldFile in pairs(oldFiles) do
+    print("  Removing " .. oldFile .. "...")
+  end
+  return installPackage(package, true)
+end
+
+-- update registry
 local fails = {}
 if command == "install" then
   if not packages or not packages[1] then
@@ -330,7 +363,6 @@ elseif command == "remove" then
       i = i - 1
     elseif packages[i] == "argentum" then
       print("\27[91mFor obvious reasons, you can't uninstall Argentum.")
-      print("\27[91mFor obvious reasons, you can't uninstall Halyde.")
       table.insert(fails, packages[i])
       table.remove(packageList, table.find(packageList, packages[i]))
       table.remove(packages, table.find(packages, packages[i]))
@@ -482,13 +514,7 @@ elseif command == "update" then
       print(package .. " is up to date")
       goto skip
     end
-    if not removePackage(package) then
-      table.insert(fails, packages[i])
-      table.remove(packageList, table.find(packageList, packages[i]))
-      table.remove(packages, table.find(packages, packages[i]))
-      goto skip
-    end
-    if not installPackage(package) then
+    if not updatePackage(package) then
       table.insert(fails, packages[i])
       table.remove(packageList, table.find(packageList, packages[i]))
       table.remove(packages, table.find(packages, packages[i]))

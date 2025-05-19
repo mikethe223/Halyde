@@ -6,6 +6,7 @@ end
 local internet = component.internet
 local computer = require("computer")
 local fs = require("filesystem")
+local gpu = component.gpu
 local installLocation
 local drives = {}
 for drive in fs.list("/mnt/") do
@@ -27,6 +28,9 @@ else
       else
         installDrivesText = installDrivesText .. "\n  " .. tostring(i) .. ". - " .. address:sub(1, 5) .. "..."
       end
+    else
+      table.remove(drives, i)
+      i = i - 1
     end
   end
   io.write(installDrivesText .. "\nPlease select a drive by entering its number or \"q\" to quit. ")

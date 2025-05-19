@@ -62,7 +62,10 @@ elseif convert(usedDisk, "B", "KiB") >= 1 then
 else
   usedDiskString = tostring(usedDisk) .. " B"
 end
-print("\27[92mDisk\27[0m: "..usedDiskString.." / "..totalDiskString.."\n")
+print("\27[92mDisk\27[0m: "..usedDiskString.." / "..totalDiskString)
+termlib.cursorPosX = 17
+local width, height = component.invoke(component.list("gpu")(), "getResolution")
+print("\27[92mResolution\27[0m: "..tostring(width).."x"..tostring(height).."\n")
 termlib.cursorPosX = 17
 print("\27[40m  \27[41m  \27[42m  \27[43m  \27[44m  \27[45m  \27[46m  \27[47m  ")
 termlib.cursorPosX = 17
