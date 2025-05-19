@@ -136,7 +136,7 @@ for oldFile in fs.list(installLocation) do
     table.insert(oldFiles, oldFile)
   end
 end
-for i = 1, 3 do
+for i = 1, 4 do
   local webInstallConfig = webInstallConfig[installationOrder[i]]
   if webInstallConfig.directories then
     for _, directory in pairs(webInstallConfig.directories) do
