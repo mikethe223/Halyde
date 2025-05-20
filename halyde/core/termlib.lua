@@ -9,8 +9,6 @@ termlib.cursorPosY = 1
 termlib.readHistory = {}
 
 local width, height = gpu.getResolution()
-termlib.width = width
-termlib.height = height
 
 local ANSIColorPalette = {
   ["dark"] = {
@@ -42,6 +40,7 @@ gpu.setForeground(defaultForegroundColor)
 gpu.setBackground(defaultBackgroundColor)
 
 local function scrollDown()
+  width, height = gpu.getResolution()
   if gpu.copy(1,1,width,height,0,-1) then
     local prevForeground = gpu.getForeground()
     local prevBackground = gpu.getBackground()
@@ -71,6 +70,7 @@ local function parseCodeNumbers(code)
 end
 
 function _G.print(text, endNewLine, textWrap)
+  width, height = gpu.getResolution()
 
   -- you don't know how tiring this was just for ANSI escape code support
 
@@ -94,19 +94,19 @@ function _G.print(text, endNewLine, textWrap)
   -- unfortunately, changing the "i" variable would have unpredictable effects, so to not risk anything, this workaround was done.
   section = ""
 
-  function printSection()
+  local function printSection()
     if #section==0 then
       return
     end
     while true do
       gpu.set(termlib.cursorPosX,termlib.cursorPosY,section)
-      termlib.cursorPosX = termlib.cursorPosX+unicode.wlen(section)
-      if unicode.wlen(section) > width and textWrap then
+      if unicode.wlen(section) > width - termlib.cursorPosX + 1 and textWrap then
+        section = section:sub(width - termlib.cursorPosX + 2)
         newLine()
       else
+        termlib.cursorPosX = termlib.cursorPosX+unicode.wlen(section)
         break
       end
-      section = section:sub(width + 1)
     end
     section = ""
   end
@@ -173,10 +173,10 @@ function _G.print(text, endNewLine, textWrap)
 end
 
 function _G.clear()
-  local xRes, yRes = gpu.getResolution()
+  width, height = gpu.getResolution()
   gpu.setForeground(defaultForegroundColor)
   gpu.setBackground(defaultBackgroundColor)
-  gpu.fill(1,1,xRes,yRes," ")
+  gpu.fill(1,1,width,height," ")
   termlib.cursorPosX, termlib.cursorPosY = 1, 1
 end
 

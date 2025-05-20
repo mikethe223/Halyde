@@ -1,7 +1,38 @@
 local loadfile = ...
 local filesystem = loadfile("/halyde/lib/filesystem.lua")(loadfile)
 
-_G._OSVERSION = "Halyde 1.1.0"
+_G._OSVERSION = "Halyde 1.2.0"
+
+local gpu = component.proxy(component.list("gpu")())
+local screenAddress = component.list("screen")()
+local screen = component.proxy(screenAddress)
+
+gpu.bind(screenAddress)
+local maxWidth, maxHeight = gpu.maxResolution()
+local aspectX, aspectY = screen.getAspectRatio()
+local screenRatio = aspectX * 2 / aspectY
+
+-- Calculate potential dimensions
+local widthLimited = math.floor(maxHeight * screenRatio)
+local heightLimited = math.floor(maxWidth / screenRatio)
+
+local targetWidth, targetHeight
+
+if widthLimited <= maxWidth then
+  -- Height is the limiting factor
+  targetWidth = widthLimited
+  targetHeight = maxHeight
+else
+  -- Width is the limiting factor
+  targetWidth = maxWidth
+  targetHeight = heightLimited
+end
+
+-- Ensure we never exceed maximum resolution
+targetWidth = math.min(targetWidth, maxWidth)
+targetHeight = math.min(targetHeight, maxHeight)
+
+gpu.setResolution(targetWidth, targetHeight)
 
 function _G.import(module, ...)
   local args = table.pack(...)
