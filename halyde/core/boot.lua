@@ -1,7 +1,13 @@
 local loadfile = ...
 local filesystem = loadfile("/halyde/lib/filesystem.lua")(loadfile)
 
-_G._OSVERSION = "Halyde 1.2.0"
+_G._OSVERSION = "Halyde 1.3.0"
+_G._OSLOGO = ""
+local handle, tmpdata = filesystem.open("/halyde/config/oslogo.ans", "r"), nil
+repeat
+  tmpdata = handle:read(math.huge)
+  _OSLOGO = _OSLOGO .. (tmpdata or "")
+until not tmpdata
 
 local gpu = component.proxy(component.list("gpu")())
 local screenAddress = component.list("screen")()
@@ -60,5 +66,5 @@ end
 --local handle = assert(filesystem.open("/bazinga.txt", "w"))
 --assert(handle:write("Bazinga!"))
 --handle:close()
-
+  
 import("/halyde/core/cormgr.lua")
