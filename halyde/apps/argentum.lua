@@ -272,13 +272,15 @@ local function updatePackage(package)
   handle:close()
   local oldFiles = {}
   for line in (data .. "\n"):gmatch("(.-)\n") do
-    if agcfg[package].directories then
-      if not table.find(agcfg[package].files, line:sub(2)) and not table.find(agcfg[package].directories, line:sub(2, -2)) then
-        table.insert(oldFiles, line:sub(2))
-      end
-    else
-      if not table.find(agcfg[package].files, line:sub(2)) then
-        table.insert(oldFiles, line:sub(2))
+    if line:sub(1, 1) == "A" or line:sub(1, 1) == "M" then
+      if agcfg[package].directories then
+        if not table.find(agcfg[package].files, line:sub(2)) and not table.find(agcfg[package].directories, line:sub(2, -2)) then
+          table.insert(oldFiles, line:sub(2))
+        end
+      else
+        if not table.find(agcfg[package].files, line:sub(2)) then
+          table.insert(oldFiles, line:sub(2))
+        end
       end
     end
   end
