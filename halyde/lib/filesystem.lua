@@ -9,29 +9,58 @@ end
 
 local filesystem = {}
 
-function filesystem.processPath(path) -- returns the address and absolute path of a filesystem path as well as sanitizing it
+function filesystem.canonical(path)
   checkArg(1, path, "string")
-  absPath = path:gsub("/+", "/")
+  local segList = {}
+  if path:sub(1, 1) ~= "/" then
+    path = "/" .. path
+  end
+  path = path:gsub("/+", "/")
+  for segment in path:gmatch("[^/]+") do
+    if segment == ".." and segList[1] then
+      table.remove(segList, #segList)
+    elseif segment ~= "." then
+      table.insert(segList, segment)
+    end
+  end
+  return "/" .. table.concat(segList, "/")
+end
+
+function filesystem.concat(path1, path2)
+  checkArg(1, path1, "string")
+  checkArg(2, path2, "string")
+  if path1:sub(-1, -1) == "/" then
+    path1 = path1:sub(1, -2)
+  end
+  if path2:sub(1, 1) ~= "/" then
+    path2 = "/" .. path2
+  end
+  return path1 .. path2
+end
+
+function filesystem.absolutePath(path) -- returns the address and absolute path of an object
+  checkArg(1, path, "string")
+  path = filesystem.canonical(path)
   local address = nil
-  if absPath:find("^/mnt/.../") then
+  if path:find("^/mnt/.../") then
      address = component.get(path:sub(6,8))
     if not address then
       address = computer.getBootAddress()
     else
-      absPath = absPath:sub(9)
+      path = path:sub(9)
     end
   else
     address = computer.getBootAddress()
   end
   if not address then
-    return nil, "no such device"
+    return nil, "no such component"
   end
-  return address, absPath
+  return address, path
 end
 
 function filesystem.exists(path) -- check if path exists
   checkArg(1, path, "string")
-  local address, absPath = filesystem.processPath(path)
+  local address, absPath = filesystem.absolutePath(path)
   if not address then
     return false
   end
@@ -47,7 +76,7 @@ function filesystem.open(path, mode) -- opens a file and returns its handle
   if not (mode == "r" or mode == "w" or mode == "rb" or mode == "wb") then
     return nil, "invalid handle type"
   end
-  local address, absPath = filesystem.processPath(path)
+  local address, absPath = filesystem.absolutePath(path)
   local handleArgs = {component.invoke(address, "open", absPath, mode)}
   local handle = handleArgs[1]
   if not handle then
@@ -81,7 +110,7 @@ function filesystem.list(path)
     end
     return returnTable
   else
-    local address, absPath = filesystem.processPath(path)
+    local address, absPath = filesystem.absolutePath(path)
     if not address then
       return false
     end
@@ -91,7 +120,7 @@ end
 
 function filesystem.size(path)
   checkArg(1, path, "string")
-  local address, absPath = filesystem.processPath(path)
+  local address, absPath = filesystem.absolutePath(path)
   if not address then
     return false
   end
@@ -100,7 +129,7 @@ end
 
 function filesystem.isDirectory(path)
   checkArg(1, path, "string")
-  local address, absPath = filesystem.processPath(path)
+  local address, absPath = filesystem.absolutePath(path)
   if not address then
     return false
   end
@@ -110,8 +139,8 @@ end
 function filesystem.rename(fromPath, toPath)
   checkArg(1, fromPath, "string")
   checkArg(2, toPath, "string")
-  local fromAddress, fromAbsPath = filesystem.processPath(fromPath)
-  local toAddress, toAbsPath = filesystem.processPath(toPath)
+  local fromAddress, fromAbsPath = filesystem.absolutePath(fromPath)
+  local toAddress, toAbsPath = filesystem.absolutePath(toPath)
   if not fromAddress or not toAddress then
     return false
   end
@@ -135,8 +164,8 @@ end
 function filesystem.copy(fromPath, toPath)
   checkArg(1, fromPath, "string")
   checkArg(2, toPath, "string")
-  local fromAddress, fromAbsPath = filesystem.processPath(fromPath)
-  local toAddress, toAbsPath = filesystem.processPath(toPath)
+  local fromAddress, fromAbsPath = filesystem.absolutePath(fromPath)
+  local toAddress, toAbsPath = filesystem.absolutePath(toPath)
   if not fromAddress or not toAddress then
     return false
   end
@@ -154,7 +183,7 @@ end
 
 function filesystem.isDirectory(path)
   checkArg(1, path, "string")
-  local address, absPath = filesystem.processPath(path)
+  local address, absPath = filesystem.absolutePath(path)
   if not address then
     return false
   end
@@ -163,7 +192,7 @@ end
 
 function filesystem.remove(path)
   checkArg(1, path, "string")
-  local address, absPath = filesystem.processPath(path)
+  local address, absPath = filesystem.absolutePath(path)
   if not address then
     return false
   end
@@ -172,7 +201,7 @@ end
 
 function filesystem.makeDirectory(path)
   checkArg(1, path, "string")
-  local address, absPath = filesystem.processPath(path)
+  local address, absPath = filesystem.absolutePath(path)
   if not address then
     return false
   end

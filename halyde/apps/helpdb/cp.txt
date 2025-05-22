@@ -1,9 +1,10 @@
 Usage: cp [FLAGS] [SOURCE] [DESTINATION]
 Copies a file.
 
-  -o, --overwrite   Allows any file that might be at the destination to be overwritten.
-  SOURCE        Specifies the file to be copied.
-  DESTINATION   Specifies the path to copy the file to.
+  FLAGS               Specifies extra options when executing the command.
+    -o, --overwrite   Allows any file that might be at the destination to be overwritten.
+  SOURCE              Specifies the file to be copied.
+  DESTINATION         Specifies the path to copy the file to.
 
 Examples:
   cp /home/a.txt /b.txt   Copies the file at /home/a.txt to /b.txt.

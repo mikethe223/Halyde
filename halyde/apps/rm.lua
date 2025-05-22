@@ -1,6 +1,4 @@
-local args = {...}
-local file = args[1]
-args = nil
+local file = ...
 local fs = import("filesystem")
 
 if not file then
@@ -8,9 +6,10 @@ if not file then
   return
 end
 if file:sub(1, 1) ~= "/" then
-  file = shell.workingDirectory .. file
+  file = fs.concat(shell.workingDirectory, file)
 end
 if not fs.exists(file) then
   print("\27[91mFile does not exist.")
+  return
 end
 fs.remove(file)

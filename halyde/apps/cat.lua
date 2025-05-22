@@ -1,20 +1,20 @@
-local args = {...}
-local file = args[1]
-args = nil
+local files = {...}
 local fs = import("filesystem")
-if not file then
+if not files or not files[1] then
   shell.run("help cat")
   return
 end
-if file:sub(1, 1) ~= "/" then
-  file = shell.workingDirectory .. file
+for _, file in ipairs(files) do 
+  if file:sub(1, 1) ~= "/" then
+    file = fs.concat(shell.workingDirectory, file)
+  end
+  if not fs.exists(file) then
+    print("\27[91mFile does not exist.")
+  end
+  local handle = fs.open(file, "r")
+  local data
+  repeat
+    data = handle:read(math.huge or math.maxinteger)
+    print(data, false)
+  until not data
 end
-if not fs.exists(file) then
-  print("\27[91mFile does not exist.")
-end
-local handle = fs.open(file, "r")
-local data
-repeat
-  data = handle:read(math.huge or math.maxinteger)
-  print(data, false)
-until not data

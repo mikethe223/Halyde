@@ -1,6 +1,4 @@
-local args = {...}
-local fromFile, toFile = args[1], args[2]
-args = nil
+local fromFile, toFile = ...
 local fs = import("filesystem")
 
 if not fromFile or not toFile then
@@ -8,10 +6,10 @@ if not fromFile or not toFile then
   return
 end
 if fromFile:sub(1, 1) ~= "/" then
-  fromFile = shell.workingDirectory .. fromFile
+  fromFile = fs.concat(shell.workingDirectory, fromFile)
 end
 if toFile:sub(1, 1) ~= "/" then
-  toFile = shell.workingDirectory .. toFile
+  toFile = fs.concat(shell.workingDirectory, toFile)
 end
 if fromFile == toFile then
   print("\27[91mSource and destination are the same.")

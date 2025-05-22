@@ -1,6 +1,4 @@
-local args = {...}
-local directory = args[1]
-args = nil
+local directory = ...
 local fs = import("filesystem")
 
 if not directory then
@@ -8,7 +6,7 @@ if not directory then
   return
 end
 if directory:sub(1, 1) ~= "/" then
-  directory = shell.workingDirectory .. directory
+  directory = fs.concat(shell.workingDirectory, directory)
 end
 if fs.exists(directory) then
   print("\27[91mAn object already exists at the specified path.")
