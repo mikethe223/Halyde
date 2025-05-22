@@ -290,13 +290,22 @@ local function updatePackage(package)
   return installPackage(package, true)
 end
 
--- update registry
 local fails = {}
 if command == "install" then
   if not packages or not packages[1] then
     print("Please specify packages to install.")
     return
   end
+  print("Fetching Ag registry...")
+  local newRegistry, errorMessage = getFile("https://raw.githubusercontent.com/Team-Cerulean-Blue/Halyde/refs/heads/main/argentum/registry.cfg")
+  if newRegistry then
+    local handle = fs.open("/argentum/registry.cfg", "w")
+    handle:write(newRegistry)
+    handle:close()
+  else
+    print("\27[91mFailed to fetch Ag registry: " .. (errorMessage or "returned nil"))
+  end
+  agReg = import("/argentum/registry.cfg")
   while true do
     if not doChecks(packages[i]) then
       table.insert(fails, packages[i])
@@ -438,6 +447,16 @@ elseif command == "remove" then
     print("Packages that could not be removed: " .. table.concat(fails, ", "))
   end
 elseif command == "update" then
+  print("Fetching Ag registry...")
+  local newRegistry, errorMessage = getFile("https://raw.githubusercontent.com/Team-Cerulean-Blue/Halyde/refs/heads/main/argentum/registry.cfg")
+  if newRegistry then
+    local handle = fs.open("/argentum/registry.cfg", "w")
+    handle:write(newRegistry)
+    handle:close()
+  else
+    print("\27[91mFailed to fetch Ag registry: " .. (errorMessage or "returned nil"))
+  end
+  agReg = import("/argentum/registry.cfg")
   if not packages[1] then
     local packagesInstalled = fs.list("/argentum/store/")
     for _, currentPackage in pairs(packagesInstalled) do
@@ -540,6 +559,16 @@ elseif command == "info" then
     print("Please specify a package to show information about.")
     return
   end
+  print("Fetching Ag registry...")
+  local newRegistry, errorMessage = getFile("https://raw.githubusercontent.com/Team-Cerulean-Blue/Halyde/refs/heads/main/argentum/registry.cfg")
+  if newRegistry then
+    local handle = fs.open("/argentum/registry.cfg", "w")
+    handle:write(newRegistry)
+    handle:close()
+  else
+    print("\27[91mFailed to fetch Ag registry: " .. (errorMessage or "returned nil"))
+  end
+  agReg = import("/argentum/registry.cfg")
   if not agReg[packages[1]] and not source then
     print("\27[91mPackage " .. packages[1] .. " does not exist.")
     return
@@ -554,6 +583,16 @@ elseif command == "search" then
     print("Please specify a search term.")
     return
   end
+  print("Fetching Ag registry...")
+  local newRegistry, errorMessage = getFile("https://raw.githubusercontent.com/Team-Cerulean-Blue/Halyde/refs/heads/main/argentum/registry.cfg")
+  if newRegistry then
+    local handle = fs.open("/argentum/registry.cfg", "w")
+    handle:write(newRegistry)
+    handle:close()
+  else
+    print("\27[91mFailed to fetch Ag registry: " .. (errorMessage or "returned nil"))
+  end
+  agReg = import("/argentum/registry.cfg")
   local searchResults = {}
   for packageName, _ in pairs(agReg) do
     if packageName:find(packages[1], 1, true) then
@@ -567,6 +606,16 @@ elseif command == "search" then
   table.sort(searchResults)
   print("Search results: \n  " .. table.concat(searchResults, "\n  "))
 elseif command == "list" then
+  print("Fetching Ag registry...")
+  local newRegistry, errorMessage = getFile("https://raw.githubusercontent.com/Team-Cerulean-Blue/Halyde/refs/heads/main/argentum/registry.cfg")
+  if newRegistry then
+    local handle = fs.open("/argentum/registry.cfg", "w")
+    handle:write(newRegistry)
+    handle:close()
+  else
+    print("\27[91mFailed to fetch Ag registry: " .. (errorMessage or "returned nil"))
+  end
+  agReg = import("/argentum/registry.cfg")
   local sortedPackages = {}
   for packageName, _ in pairs(agReg) do
     table.insert(sortedPackages, packageName)

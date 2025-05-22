@@ -1,7 +1,7 @@
 local loadfile = ...
 local filesystem = loadfile("/halyde/lib/filesystem.lua")(loadfile)
 
-_G._OSVERSION = "Halyde 1.3.1"
+_G._OSVERSION = "Halyde 1.4.0"
 _G._OSLOGO = ""
 local handle, tmpdata = filesystem.open("/halyde/config/oslogo.ans", "r"), nil
 repeat
@@ -11,34 +11,34 @@ until not tmpdata
 
 local gpu = component.proxy(component.list("gpu")())
 local screenAddress = component.list("screen")()
-local screen = component.proxy(screenAddress)
+--local screen = component.proxy(screenAddress)
 
 gpu.bind(screenAddress)
-local maxWidth, maxHeight = gpu.maxResolution()
-local aspectX, aspectY = screen.getAspectRatio()
-local screenRatio = aspectX * 2 / aspectY
+--local maxWidth, maxHeight = gpu.maxResolution()
+--local aspectX, aspectY = screen.getAspectRatio()
+--local screenRatio = aspectX * 2 / aspectY
 
 -- Calculate potential dimensions
-local widthLimited = math.floor(maxHeight * screenRatio)
-local heightLimited = math.floor(maxWidth / screenRatio)
+--local widthLimited = math.floor(maxHeight * screenRatio)
+--local heightLimited = math.floor(maxWidth / screenRatio)
 
-local targetWidth, targetHeight
+--local targetWidth, targetHeight
 
-if widthLimited <= maxWidth then
-  -- Height is the limiting factor
-  targetWidth = widthLimited
-  targetHeight = maxHeight
-else
-  -- Width is the limiting factor
-  targetWidth = maxWidth
-  targetHeight = heightLimited
-end
+--if widthLimited <= maxWidth then
+  -- height is the limiting factor
+--  targetWidth = widthLimited
+--  targetHeight = maxHeight
+--else
+  -- width is the limiting factor
+--  targetWidth = maxWidth
+--  targetHeight = heightLimited
+--end
 
--- Ensure we never exceed maximum resolution
-targetWidth = math.min(targetWidth, maxWidth)
-targetHeight = math.min(targetHeight, maxHeight)
+--targetWidth = math.min(targetWidth, maxWidth)
+--targetHeight = math.min(targetHeight, maxHeight)
 
-gpu.setResolution(targetWidth, targetHeight)
+--gpu.setResolution(targetWidth, targetHeight)
+gpu.setResolution(gpu.maxResolution())
 
 function _G.import(module, ...)
   local args = table.pack(...)
