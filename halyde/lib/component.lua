@@ -19,4 +19,4 @@ end
 
 componentlib.invoke = component.invoke
 
-return(componentlib)
+return componentlib

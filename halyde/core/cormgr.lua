@@ -3,6 +3,7 @@ _G.cormgr.corList = {}
 
 --local ocelot = component.proxy(component.list("ocelot")())
 
+local component = import("component")
 local filesystem = import("filesystem")
 local gpu = component.proxy(component.list("gpu")())
 

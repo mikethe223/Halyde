@@ -1,3 +1,4 @@
+local computer = import("computer")
 local event = {}
 
 --local ocelot = component.proxy(component.list("ocelot")())

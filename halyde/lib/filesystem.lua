@@ -1,10 +1,12 @@
 local loadfile = ... -- raw loadfile from boot.lua
-local component
+local component, computer
 
 if loadfile then
   component = loadfile("/halyde/lib/component.lua")(loadfile)
+  computer = _G.computer
 elseif import then
   component = import("component")
+  computer = import("computer")
 end
 
 local filesystem = {}
@@ -125,15 +127,6 @@ function filesystem.size(path)
     return false
   end
   return component.invoke(address, "size", absPath)
-end
-
-function filesystem.isDirectory(path)
-  checkArg(1, path, "string")
-  local address, absPath = filesystem.absolutePath(path)
-  if not address then
-    return false
-  end
-  return component.invoke(address, "isDirectory", absPath)
 end
 
 function filesystem.rename(fromPath, toPath)

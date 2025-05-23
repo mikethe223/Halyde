@@ -2,6 +2,8 @@ _G.evmgr = {}
 _G.evmgr.eventQueue = {}
 local maxEventQueueLength = 10 -- increase if events start getting dropped
 
+local computer = import("computer")
+
 keyboard.ctrlDown = false
 keyboard.altDown = false
 

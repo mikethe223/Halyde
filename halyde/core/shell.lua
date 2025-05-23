@@ -2,6 +2,7 @@ local shellcfg = import("/halyde/config/shell.cfg")
 import("/halyde/core/termlib.lua")
 local event = import("event")
 local filesystem = import("filesystem")
+local component = import("component")
 local gpu = component.proxy(component.list("gpu")())
 
 _G.shell = {}

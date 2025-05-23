@@ -21,26 +21,26 @@ function loadthething()
   loadfile("/halyde/core/boot.lua")(loadfile)
 end
 
-while true do
+gpu.setBackground(0x000000)
+gpu.fill(1, 1, resx, resy, " ")
+local result, reason = xpcall(loadthething, handleError)
+if not result then
+  local computer = import("computer") or computer
   gpu.setBackground(0x000000)
   gpu.fill(1, 1, resx, resy, " ")
-  local result, reason = xpcall(loadthething, handleError)
-  if not result then
-    gpu.setBackground(0x000000)
-    gpu.fill(1, 1, resx, resy, " ")
-    gpu.setBackground(0x800000)
-    gpu.setForeground(0xFFFFFF)
-    gpu.set(2,2,"A critical error has occurred.")
-    local i = 4
-    reason = reason:gsub("\t", "  ")
-    for line in string.gmatch((reason ~= nil and tostring(reason)) or "unknown error", "([^\n]*)\n?") do
-      gpu.set(2,i,line)
-      i = i + 1
-    end
-    gpu.set(2,i+1, "Press any key to restart.")
-    local evname = ""
-    repeat
-      evname = computer.pullSignal()
-    until evname == "key_down"
+  gpu.setBackground(0x800000)
+  gpu.setForeground(0xFFFFFF)
+  gpu.set(2,2,"A critical error has occurred.")
+  local i = 4
+  reason = reason:gsub("\t", "  ")
+  for line in string.gmatch((reason ~= nil and tostring(reason)) or "unknown error", "([^\n]*)\n?") do
+    gpu.set(2,i,line)
+    i = i + 1
   end
+  gpu.set(2,i+1, "Press any key to restart.")
+  local evname
+  repeat
+    evname = computer.pullSignal()
+  until evname == "key_down"
+  computer.shutdown(true)
 end

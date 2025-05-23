@@ -2,6 +2,7 @@ local event = import("event")
 --local keyboard = import("keyboard")
 
 --local ocelot = component.proxy(component.list("ocelot")())
+local component = import("component")
 local gpu = component.proxy(component.list("gpu")()) -- replace with component.gpu once implemented
 _G.termlib = {}
 termlib.cursorPosX = 1

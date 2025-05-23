@@ -19,7 +19,7 @@ if not fs.exists(fromFile) then
   print("\27[91mSource file does not exist.")
   return
 end
-if fs.exists(toFile) and not (table.find(args, "-o") or table.find(args, "--overwrite")) then
+if fs.exists(toFile) and not (table.find({...}, "-o") or table.find({...}, "--overwrite")) then
   print("\27[91mDestination file already exists. Run this command again with -o to overwrite it.")
   return
 end

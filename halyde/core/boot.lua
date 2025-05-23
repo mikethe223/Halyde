@@ -1,7 +1,7 @@
 local loadfile = ...
 local filesystem = loadfile("/halyde/lib/filesystem.lua")(loadfile)
 
-_G._OSVERSION = "Halyde 1.5.0"
+_G._OSVERSION = "Halyde 1.6.0"
 _G._OSLOGO = ""
 local handle, tmpdata = filesystem.open("/halyde/config/oslogo.ans", "r"), nil
 repeat
@@ -40,8 +40,15 @@ gpu.bind(screenAddress)
 --gpu.setResolution(targetWidth, targetHeight)
 gpu.setResolution(gpu.maxResolution())
 
+_G.package = {["preloaded"] = {}}
+
+loadfile("/halyde/core/datatools.lua")()
+
 function _G.import(module, ...)
   local args = table.pack(...)
+  if package.preloaded[module] then
+    return package.preloaded[module]
+  end
   local modulepath
   if module:find("^/") then
     if filesystem.exists(module) then
@@ -53,15 +60,26 @@ function _G.import(module, ...)
     modulepath = shell.workingDirectory..module
   end
   assert(modulepath, "module not found\npossible locations:\n/halyde/lib/"..module..".lua")
-  local handle = filesystem.open(modulepath)
-  local data = ""
-  local tmpdata = ""
+  local handle, data, tmpdata = filesystem.open(modulepath), "", nil
   repeat
     tmpdata = handle:read(math.huge or math.maxinteger)
     data = data .. (tmpdata or "")
   until not tmpdata
   return(assert(load(data, "="..modulepath))(table.unpack(args)))
 end
+
+local function preload(module)
+  local handle, data, tmpdata = assert(filesystem.open("/halyde/lib/" .. module .. ".lua", "r")), "", nil
+  repeat
+    tmpdata = handle:read(math.huge or math.maxinteger)
+    data = data .. (tmpdata or "")
+  until not tmpdata
+  package.preloaded[module] = assert(load(data, "="..module))()
+  _G[module] = nil
+end
+
+preload("component")
+preload("computer")
 
 --local handle = assert(filesystem.open("/bazinga.txt", "w"))
 --assert(handle:write("Bazinga!"))

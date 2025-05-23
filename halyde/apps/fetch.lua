@@ -1,3 +1,6 @@
+local component = import("component")
+local computer = import("computer")
+
 local function printstat(text)
   termlib.cursorPosX = 35
   print(text, true, false)
