@@ -8,6 +8,7 @@ local raster = {
   ["charHeight"]=0
 }
 
+local component = import("component")
 -- local ocelot = component.proxy(component.list("ocelot")())
 local gpu = component.proxy(component.list("gpu")())
 

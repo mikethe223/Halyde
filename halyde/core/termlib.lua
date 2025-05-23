@@ -3,6 +3,7 @@ local event = import("event")
 
 --local ocelot = component.proxy(component.list("ocelot")())
 local component = import("component")
+local computer = import("computer")
 local gpu = component.proxy(component.list("gpu")()) -- replace with component.gpu once implemented
 _G.termlib = {}
 termlib.cursorPosX = 1
@@ -70,14 +71,11 @@ local function parseCodeNumbers(code)
   return o
 end
 
-function _G.print(text, endNewLine, textWrap)
+function termlib.write(text, textWrap)
   width, height = gpu.getResolution()
 
   -- you don't know how tiring this was just for ANSI escape code support
 
-  if endNewLine == nil then
-    endNewLine = true
-  end
   if textWrap == nil then
     textWrap = true
   end
@@ -168,9 +166,17 @@ function _G.print(text, endNewLine, textWrap)
     ::continue::
   end
   printSection()
-  if endNewLine then
-    newLine()
+end
+
+function _G.print(...)
+  local args = {...}
+  local stringArgs = {}
+  for _, arg in pairs(args) do
+    if tostring(arg) then
+      table.insert(stringArgs, tostring(arg))
+    end
   end
+  termlib.write(table.concat(stringArgs, "   ") .. "\n")
 end
 
 function _G.clear()
@@ -197,7 +203,7 @@ function _G.read(readHistoryType, prefix, defaultText)
     RHIndex = #termlib.readHistory[readHistoryType] -- read history index
   end
   local cursorPosX, cursorPosY = termlib.cursorPosX, termlib.cursorPosY
-  print(prefix .. curtext .. "\27[107m ", false)
+  termlib.write(prefix .. curtext .. "\27[107m ")
   local cursorWhite = true
   while true do
     --ocelot.log(curtext)
@@ -209,30 +215,30 @@ function _G.read(readHistoryType, prefix, defaultText)
       local key = keyboard.keys[keycode]
       if key == "up" and readHistoryType then
         termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-        print(prefix .. curtext .. " ", false)
+        termlib.write(prefix .. curtext .. " ")
         RHIndex = RHIndex - 1
         if RHIndex <= 0 then
           RHIndex = 1
         end
         termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-        print(prefix .. termlib.readHistory[readHistoryType][RHIndex] .. string.rep(" ", unicode.wlen(curtext) - unicode.wlen(termlib.readHistory[readHistoryType][RHIndex])), false)
+        termlib.write(prefix .. termlib.readHistory[readHistoryType][RHIndex] .. string.rep(" ", unicode.wlen(curtext) - unicode.wlen(termlib.readHistory[readHistoryType][RHIndex])))
         curtext = termlib.readHistory[readHistoryType][RHIndex]
       end
       if key == "down" and readHistoryType then
         termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-        print(prefix .. curtext .. " ", false)
+        termlib.write(prefix .. curtext .. " ")
         RHIndex = RHIndex + 1
         if RHIndex > #termlib.readHistory[readHistoryType] then
           RHIndex = #termlib.readHistory[readHistoryType]
         end
         termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-        print(prefix .. termlib.readHistory[readHistoryType][RHIndex] .. string.rep(" ", unicode.wlen(curtext) - unicode.wlen(termlib.readHistory[readHistoryType][RHIndex])), false)
+        termlib.write(prefix .. termlib.readHistory[readHistoryType][RHIndex] .. string.rep(" ", unicode.wlen(curtext) - unicode.wlen(termlib.readHistory[readHistoryType][RHIndex])))
         curtext = termlib.readHistory[readHistoryType][RHIndex]
       end
       if key == "back" then
         curtext = curtext:sub(1, #curtext-1)
         termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-        print(prefix .. curtext.."  ", false)
+        termlib.write(prefix .. curtext.."  ")
       end
       if key == "enter" then
         termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
@@ -251,14 +257,14 @@ function _G.read(readHistoryType, prefix, defaultText)
         end
       end
       termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
-      print(prefix .. curtext, false)
+      termlib.write(prefix .. curtext)
     else
       cursorWhite = not cursorWhite
     end
     if cursorWhite then
-      print("\27[107m ", false)
+      termlib.write("\27[107m ")
     else
-      print(" ", false)
+      termlib.write(" ")
     end
   end
 end

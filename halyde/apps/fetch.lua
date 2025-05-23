@@ -3,11 +3,11 @@ local computer = import("computer")
 
 local function printstat(text)
   termlib.cursorPosX = 35
-  print(text, true, false)
+  termlib.write(text .. "\n", false)
 end
 
-print(_OSLOGO, true, false)
-termlib.cursorPosY = termlib.cursorPosY - 18
+termlib.write(_OSLOGO, false)
+termlib.cursorPosY = termlib.cursorPosY - 17
 printstat("\27[92mOS\27[0m: ".._OSVERSION)
 printstat("\27[92mArchitecture\27[0m: ".._VERSION)
 local componentCounter = 0

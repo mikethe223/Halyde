@@ -1,8 +1,7 @@
-local args = {...}
-local file = args[1]
-args = nil
+local file = ...
 local fs = import("filesystem")
 local event = import("event")
+local component = import("component")
 local gpu = component.proxy(component.list("gpu")())
 local width, height = gpu.getResolution()
 local scrollPosX, scrollPosY = 1, 1
@@ -16,7 +15,7 @@ local scrollSpeed = 5
 local function rawset(x, y, text)
   termlib.cursorPosX = x
   termlib.cursorPosY = y
-  print(text, false, false)
+  termlib.write(text, false)
 end
 
 local filestring, filepath, handle, data, tmpdata
