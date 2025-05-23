@@ -2,6 +2,7 @@ local packages = {...}
 local command = packages[1]
 table.remove(packages, 1)
 local fs = import("filesystem")
+local component = import("component")
 local agReg = import("/argentum/registry.cfg")
 if not command then
   shell.run("help argentum")
