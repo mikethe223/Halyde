@@ -1,6 +1,13 @@
 # Halyde
 A universal, customizable and feature-packed operating system for OpenComputers.
 
+<p align="center">
+    <a href="https://lua.org/">
+        <img src="https://img.shields.io/badge/Written_in-Lua-blue?style=plastic&logo=lua" /></a>
+    <a href="https://ocdoc.cil.li/">
+        <img src="https://img.shields.io/badge/Made_for-OpenComputers-yellow?style=plastic" /></a>
+</p>
+
 ## Installation
 To install Halyde from OpenOS, simply run:
 
