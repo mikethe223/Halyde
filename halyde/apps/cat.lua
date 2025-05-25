@@ -15,6 +15,6 @@ for _, file in ipairs(files) do
   local data
   repeat
     data = handle:read(math.huge or math.maxinteger)
-    print(data, false)
+    termlib.write(data)
   until not data
 end
