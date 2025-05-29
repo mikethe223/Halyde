@@ -93,6 +93,9 @@ while true do
   --print(shellcfg["prompt"]:format(shell.workingDirectory),false)
   -- termlib.cursorPosX = #(shell.workingDirectory .. " >  ")
   -- termlib.cursorPosY = termlib.cursorPosY - 1
+  if shell.workingDirectory:sub(-1, -1) ~= "/" then
+    shell.workingDirectory = shell.workingDirectory .. "/"
+  end
   local shellCommand = read("shell", shellcfg.prompt:format(shell.workingDirectory))
   shell.run(shellCommand)
   gpu.freeAllBuffers()

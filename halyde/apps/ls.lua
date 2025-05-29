@@ -9,10 +9,7 @@ local fileTable = {}
 
 if target then
   if target:sub(1, 1) ~= "/" then
-    target = shell.workingDirectory .. target
-  end
-  if target:sub(-1, -1) ~= "/" then
-    target = target .. "/"
+    target = fs.concat(shell.workingDirectory, target)
   end
 else
   target = shell.workingDirectory
@@ -45,7 +42,7 @@ if files then
   for _, file in ipairs(files) do
     local dir = false
     local filetext
-    if file:sub(-1, -1) == "/" then -- i think this is a more efficient way to check if it's a directory
+    if file:sub(-1, -1) == "/" then
       dir = true
       filetext = "\27[93m"..file:sub(1, -2)
     elseif file:find(".") and file:match("[^.]+$") == "lua" then
@@ -55,7 +52,7 @@ if files then
     if dir then
       print(filetext.." \27[0m[DIR]")
     else
-      local size = fs.size(target .. file)
+      local size = fs.size(fs.concat(target, file))
       local sizeString
       if convert(size, "B", "GiB") >= 1 then
         sizeString = tostring(math.floor(convert(size, "B", "GiB") * 100 + 0.5) / 100).." GiB"
