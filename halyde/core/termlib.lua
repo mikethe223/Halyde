@@ -250,7 +250,7 @@ if readHistoryType then
         local afterCursor = curtext:sub(utf8.offset(curtext, textCursorPos) or (#curtext + 1))
 
         termlib.write(prefix .. beforeCursor)
-        termlib.write("\27[107m" .. (afterCursor:sub(1, 1) ~= "" and afterCursor:sub(1, 1) or " ") .. "\27[0m")
+        termlib.write("\27[30m\27[107m" .. (afterCursor:sub(1, 1) ~= "" and afterCursor:sub(1, 1) or " ") .. "\27[0m") -- HUGE SHOUTOUT TO WAH FOR MAKING THE ESCAPE CODES WORK YEAAAAAAA
         termlib.write(afterCursor:sub(2))
         end
 
