@@ -11,4 +11,4 @@ end
 if fs.exists(directory) then
   print("\27[91mAn object already exists at the specified path.")
 end
-fs.makeDirectory(file)
+fs.makeDirectory(directory)
