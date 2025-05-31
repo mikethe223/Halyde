@@ -1,7 +1,14 @@
-local shellcfg = import("/halyde/config/shell.cfg")
+local fs = import("filesystem")
+local json = import("json")
+local handle, data, tmpdata = fs.open("/halyde/config/shell.json", "r"), "", nil
+repeat
+  tmpdata = handle:read(math.huge)
+  data = data .. (tmpdata or "")
+until not tmpdata
+handle:close()
+local shellcfg = json.decode(data)
 import("/halyde/core/termlib.lua")
 local event = import("event")
-local filesystem = import("filesystem")
 local component = import("component")
 local gpu = component.proxy(component.list("gpu")())
 
@@ -51,39 +58,36 @@ function _G.shell.run(command)
     end
   end
   -- execute the program
-  local foundfile = false
+  local PATH = table.copy(shellcfg.path)
+  table.insert(PATH, shell.workingDirectory)
   if not args[1] then
     return
   end
-  if filesystem.exists(args[1]) and not filesystem.isDirectory(args[1]) then
-    foundfile = true
+  if fs.exists(args[1]) and not fs.isDirectory(args[1]) then
     local path = args[1]
     table.remove(args, 1)
     runAsCoroutine(path, table.unpack(args))
-  else
-    for _, item in pairs(shellcfg["path"]) do
-      if filesystem.exists(item..args[1]) and not filesystem.isDirectory(item .. args[1]) then
-        foundfile = true
-        local path = item..args[1]
-        table.remove(args, 1)
-        runAsCoroutine(path, table.unpack(args))
-        break
-      else -- try to look for it without the file extension
-        local files = filesystem.list(item)
-        for _, file in pairs(files) do
-          if args[1] == file:match("(.+)%.[^%.]+$") and not filesystem.isDirectory(item .. file) then
-            foundfile = true
-            table.remove(args, 1)
-            runAsCoroutine(item .. file, table.unpack(args))
-            break
-          end
+    return
+  end
+  for _, item in pairs(PATH) do
+    if fs.exists(item..args[1]) and not fs.isDirectory(item .. args[1]) then
+      local path = fs.concat(item, args[1])
+      table.remove(args, 1)
+      runAsCoroutine(path, table.unpack(args))
+      return
+    else -- try to look for it without the file extension
+      local files = fs.list(item)
+      for _, file in pairs(files) do
+        -- previous pattern: (.+)%.[^%.]+$
+        if args[1] == file:match("(.+)%.[^%.]+$") and not fs.isDirectory(item .. file) then
+          table.remove(args, 1)
+          runAsCoroutine(item .. file, table.unpack(args))
+          return
         end
       end
     end
   end
-  if not foundfile then
-    print("No such file or command: "..args[1])
-  end
+  print("No such file or command: "..args[1])
 end
 
 print(shellcfg["startupMessage"]:format(shellcfg.splashMessages[math.random(1, #shellcfg.splashMessages)]))

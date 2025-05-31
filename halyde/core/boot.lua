@@ -1,7 +1,7 @@
 local loadfile = ...
 local filesystem = loadfile("/halyde/lib/filesystem.lua")(loadfile)
 
-_G._OSVERSION = "Halyde 1.7.2"
+_G._OSVERSION = "Halyde 1.8.0"
 _G._OSLOGO = ""
 local handle, tmpdata = filesystem.open("/halyde/config/oslogo.ans", "r"), nil
 repeat
@@ -84,5 +84,14 @@ preload("computer")
 --local handle = assert(filesystem.open("/bazinga.txt", "w"))
 --assert(handle:write("Bazinga!"))
 --handle:close()
+
+local fs = import("filesystem")
+if not fs.exists("/halyde/config/shell.json") then
+  fs.copy("/halyde/config/generate/shell.json", "/halyde/config/shell.json")
+end
+if not fs.exists("/halyde/config/startupapps.json") then
+  fs.copy("/halyde/config/generate/startupapps.json", "/halyde/config/startupapps.json")
+end
+fs = nil
   
 import("/halyde/core/cormgr.lua")

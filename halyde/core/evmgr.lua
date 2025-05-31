@@ -12,13 +12,12 @@ keyboard.altDown = false
 while true do
   local args
   repeat
-    args = {computer.pullSignal(0)}
-    if args and args[1] then
-      --ocelot.log("Sending signal "..args..","..computer.uptime())
+    args = {computer.uptime(), computer.pullSignal(0)}
+    if args and args[2] then
       table.insert(evmgr.eventQueue, args)
       if keyboard then
-        if args[1] == "key_down" then
-          local keycode = args[4]
+        if args[2] == "key_down" then
+          local keycode = args[5]
           local key = keyboard.keys[keycode]
           if key == "lcontrol" then
             keyboard.ctrlDown = true
@@ -30,8 +29,8 @@ while true do
             end
             cormgr.corList[#cormgr.corList] = nil
           end
-        elseif args[1] == "key_up" then
-          local keycode = args[4]
+        elseif args[2] == "key_up" then
+          local keycode = args[5]
           local key = keyboard.keys[keycode]
           if key == "lcontrol" then
             keyboard.ctrlDown = false

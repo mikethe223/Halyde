@@ -5,6 +5,7 @@ _G.cormgr.corList = {}
 
 local component = import("component")
 local filesystem = import("filesystem")
+local json = import("json")
 local gpu = component.proxy(component.list("gpu")())
 
 function _G.cormgr.loadCoroutine(path, ...)
@@ -55,14 +56,13 @@ local function runCoroutines()
   end
 end
 
-local handle = filesystem.open("/halyde/config/startupapps.cfg", "r")
-local data = ""
-local tmpdata
+local handle, data, tmpdata = filesystem.open("/halyde/config/startupapps.json", "r"), "", nil
 repeat
   tmpdata = handle:read(math.huge or math.maxinteger)
   data = data .. (tmpdata or "")
 until not tmpdata
-for line in data:gmatch("([^\n]*)\n?") do
+handle:close()
+for _, line in ipairs(json.decode(data)) do
   if line ~= "" then
     --[[ if _G.print then
       print(line)

@@ -4,39 +4,38 @@ local event = {}
 --local ocelot = component.proxy(component.list("ocelot")())
 function event.pull(...)
   local args = {...}
-  local evtype, timeout
+  local evtypes, timeout = {}, nil
   
-  if #args == 0 then
-    -- No arguments, wait for any event indefinitely
-    evtype = nil
-    timeout = nil
-  elseif #args == 1 then
-    -- If one argument is provided, it could be either the event type or timeout
-    if type(args[1]) == "number" then
-      -- It's a timeout
-      evtype = nil
-      timeout = args[1]
-    else
-      -- It's an event type
-      evtype = args[1]
-      timeout = nil
+  for _, arg in pairs(args) do
+    if type(arg) == "number" and not timeout then -- It's a timeout
+      timeout = arg
+    else -- It's an event type
+      table.insert(evtypes, tostring(arg))
     end
-  else
-    -- Both event type and timeout provided
-    evtype = args[1]
-    timeout = args[2]
   end
   
   local startTime = computer.uptime()
-  local result = {}
   
-  repeat
+  while true do
     -- Check event queue for matching event
     for i = 1, #evmgr.eventQueue do
-      if not evtype or evmgr.eventQueue[i][1] == evtype then
+      local foundevent = false
+      for _, evtype in pairs(evtypes) do
+        if evtypes[1] then -- event type(s) specified
+          if evmgr.eventQueue[i][2] == evtype and evmgr.eventQueue[i][1] >= startTime then
+            foundevent = true
+          end
+        else -- event type(s) not specified
+          if evmgr.eventQueue[i][1] >= startTime then
+            foundevent = true
+          end
+        end
+      end
+      if foundevent then
         -- Found matching event (or any event if no type specified)
-        result = table.copy(evmgr.eventQueue[i])
+        local result = table.copy(evmgr.eventQueue[i])
         table.remove(evmgr.eventQueue, i)
+        table.remove(result, 1) -- remove the time of event argument
         return table.unpack(result)
       end
     end
@@ -48,7 +47,7 @@ function event.pull(...)
     
     -- Yield to allow other processes to run and more events to be added
     coroutine.yield()
-  until false  -- Loop until we find an event or timeout
+  end
 end
 
 return event

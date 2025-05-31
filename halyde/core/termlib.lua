@@ -208,8 +208,8 @@ function _G.read(readHistoryType, prefix, defaultText)
   while true do
     --ocelot.log(curtext)
     termlib.cursorPosX = termlib.cursorPosX - 1
-    local args = {event.pull("key_down", 0.5)}
-    if args[4] then
+    local args = {event.pull("key_down", "clipboard", 0.5)}
+    if args[1] == "key_down" and args[4] then
       cursorWhite = true
       local keycode = args[4]
       local key = keyboard.keys[keycode]
@@ -258,6 +258,8 @@ function _G.read(readHistoryType, prefix, defaultText)
       end
       termlib.cursorPosX, termlib.cursorPosY = cursorPosX, cursorPosY
       termlib.write(prefix .. curtext)
+    elseif args[1] == "clipboard" then
+      
     else
       cursorWhite = not cursorWhite
     end
