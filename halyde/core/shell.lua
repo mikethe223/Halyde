@@ -90,7 +90,7 @@ function _G.shell.run(command)
   print("No such file or command: "..args[1])
 end
 
-print(shellcfg["startupMessage"]:format(shellcfg.splashMessages[math.random(1, #shellcfg.splashMessages)]))
+print(shellcfg["startupMessage"]:format(_OSVERSION, shellcfg.splashMessages[math.random(1, #shellcfg.splashMessages)]))
 while true do
   coroutine.yield()
   -- print(shell.workingDirectory .. " >")
