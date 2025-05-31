@@ -76,7 +76,7 @@ function _G.shell.run(command)
       runAsCoroutine(path, table.unpack(args))
       return
     else -- try to look for it without the file extension
-      local files = fs.list(item)
+      local files = fs.list(item) or {}
       for _, file in pairs(files) do
         -- previous pattern: (.+)%.[^%.]+$
         if args[1] == file:match("(.+)%.[^%.]+$") and not fs.isDirectory(item .. file) then
