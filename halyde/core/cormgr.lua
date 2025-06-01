@@ -1,3 +1,12 @@
+_G.cormgr = {}
+_G.cormgr.corList = {}
+_G.cormgr.labelList = {}
+
+--local ocelot = component.proxy(component.list("ocelot")())
+
+local component = import("component")
+local filesystem = import("filesystem")
+local json = import("json")
 local gpu = component.proxy(component.list("gpu")())
 
 function _G.cormgr.loadCoroutine(path,...)
