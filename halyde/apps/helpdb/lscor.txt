@@ -2,4 +2,4 @@ Usage: lscor
 Lists every active coroutine by ID and name.
 
 Examples:
-  fetch   Lists every active coroutine by ID and name.
+  lscor   Lists every active coroutine by ID and name.
