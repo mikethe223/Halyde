@@ -1,5 +1,6 @@
 _G.cormgr = {}
 _G.cormgr.corList = {}
+_G.cormgr.labelList = {}
 
 --local ocelot = component.proxy(component.list("ocelot")())
 
@@ -8,7 +9,7 @@ local filesystem = import("filesystem")
 local json = import("json")
 local gpu = component.proxy(component.list("gpu")())
 
-function _G.cormgr.loadCoroutine(path, ...)
+function _G.cormgr.loadCoroutine(path,...)
   local args = {...}
   local cor = coroutine.create(function()
     local result, errorMessage = xpcall(function(...)
@@ -26,6 +27,7 @@ function _G.cormgr.loadCoroutine(path, ...)
     end
     --import(path, table.unpack(args))
   end)
+  table.insert(_G.cormgr.labelList, string.match(tostring(path), "([^/]+)%.lua$"))
   table.insert(_G.cormgr.corList, cor)
 end
 
