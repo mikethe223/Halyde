@@ -44,7 +44,7 @@ function filesystem.absolutePath(path) -- returns the address and absolute path 
   checkArg(1, path, "string")
   path = filesystem.canonical(path)
   local address = nil
-  if path:find("^/mnt/.../") then
+  if path:find("^/mnt/...") then
      address = component.get(path:sub(6,8))
     if not address then
       address = computer.getBootAddress()
@@ -104,7 +104,8 @@ end
 
 function filesystem.list(path)
   checkArg(1, path, "string")
-  if path == "/mnt/" then
+  path = filesystem.canonical(path)
+  if path == "/mnt" then
     -- list drives
     local returnTable = {}
     for address, _ in component.list("filesystem") do
