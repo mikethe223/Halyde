@@ -20,15 +20,15 @@ function event.pull(...)
     -- Check event queue for matching event
     for i = 1, #evmgr.eventQueue do
       local foundevent = false
-      for _, evtype in pairs(evtypes) do
-        if evtypes[1] then -- event type(s) specified
+      if evtypes[1] then -- event type(s) specified
+        for _, evtype in pairs(evtypes) do
           if evmgr.eventQueue[i][2] == evtype and evmgr.eventQueue[i][1] >= startTime then
             foundevent = true
           end
-        else -- event type(s) not specified
-          if evmgr.eventQueue[i][1] >= startTime then
-            foundevent = true
-          end
+        end
+      else
+        if evmgr.eventQueue[i][1] >= startTime then
+          foundevent = true
         end
       end
       if foundevent then
