@@ -84,6 +84,4 @@ function compLib.get(address)
   return nil, "full address not found"
 end
 
-compLib.invoke = component.invoke -- trust me, this is needed
-
 return compLib
