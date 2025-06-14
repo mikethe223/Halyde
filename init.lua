@@ -25,9 +25,7 @@ gpu.setBackground(0x000000)
 gpu.fill(1, 1, resx, resy, " ")
 local result, reason = xpcall(loadthething, handleError)
 if not result then
-  if import then
-    local computer = import("computer")
-  end
+  local computer = import("computer") or computer
   gpu.setBackground(0x000000)
   gpu.fill(1, 1, resx, resy, " ")
   gpu.setBackground(0x800000)

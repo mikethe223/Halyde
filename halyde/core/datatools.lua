@@ -12,8 +12,8 @@ local conversionTables = {
   }
 }
 
-function table.find(tab, item)
-  for k, v in pairs(tab) do
+function table.find(table, item)
+  for k, v in pairs(table) do
     if v == item then
       return k
     end

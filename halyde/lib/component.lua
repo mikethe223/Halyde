@@ -1,82 +1,15 @@
-local compLib
-local LLcomponent
+local componentlib
 if table.copy then
-  compLib = table.copy(component)
-  LLcomponent = table.copy(component)
+  componentlib = table.copy(component)
 else
-  compLib = {}
-  LLcomponent = component
+  componentlib = {}
 end
 
-local ocelot = LLcomponent.proxy(LLcomponent.list("ocelot")())
-ocelot.log("loaded")
-
-_G.componentlib = {["additions"] = {}, ["removals"] = {}}
-compLib.virtual = {}
-
-function compLib.virtual.add(address, componentType, proxy)
+function componentlib.get(address)
   checkArg(1, address, "string")
-  checkArg(2, componentType, "string")
-  checkArg(3, proxy, "table")
-  componentlib.additions[address] = {["componentType"] = componentType, ["proxy"] = proxy}
-  if componentlib.removals[address] then
-    componentlib.removals[address] = nil
-  end
-end
-
-function compLib.virtual.remove(address)
-  checkArg(1, address, "string")
-  if componentlib.additions[address] then
-    componentlib.additions[address] = nil
-  else
-    table.insert(componentlib.removals, address)
-  end
-end
-
-function compLib.list(componentType)
-  checkArg(1, componentType, "string", "nil")
-  local componentList = table.copy(LLcomponent.list(componentType))
-  for address, dataTable in pairs(componentlib.additions) do
-    if dataTable.componentType == componentType or not componentType then
-      componentList[address] = dataTable.componentType
-    end
-  end
-  for _, address in pairs(componentlib.removals) do
-    componentList[address] = nil
-  end
-  local i, value
-  setmetatable(componentList, {__call = function(self)
-    i, value = next(self, i)
-    return i, value
-  end})
-  return componentList
-end
-
-function compLib.proxy(address)
-  if componentlib.additions[address] then
-    ocelot.log("vcomponent")
-    return componentlib.additions[address].proxy
-  else
-    return LLcomponent.proxy(address)
-  end
-end
-
-function compLib.invoke(address, funcName, ...)
-  ocelot.log("Invoking " .. funcName .. " from " .. address)
-  if componentlib.additions[address] then
-    ocelot.log("vcomponent")
-    return componentlib.additions[address].proxy[funcName](...)
-  else
-    return LLcomponent.invoke(address, funcName, ...)
-  end
-end
-
-function compLib.get(address)
-  checkArg(1, address, "string")
-  if #address < 3 then
-    return nil, "abbreviated address must be at least 3 characters long"
-  end
-  for currentAddress, name in compLib.list() do
+  assert(#address >= 3, "abbreviated address must be at least 3 characters long")
+  local components = component.list()
+  for currentAddress, name in pairs(components) do
     if currentAddress:find("^" .. address) then
       return(currentAddress)
     end
@@ -84,6 +17,6 @@ function compLib.get(address)
   return nil, "full address not found"
 end
 
-compLib.invoke = component.invoke -- trust me, this is needed
+componentlib.invoke = component.invoke
 
-return compLib
+return componentlib
