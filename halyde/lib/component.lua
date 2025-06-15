@@ -8,8 +8,8 @@ else
   LLcomponent = component
 end
 
-local ocelot = LLcomponent.proxy(LLcomponent.list("ocelot")())
-ocelot.log("loaded")
+--local ocelot = LLcomponent.proxy(LLcomponent.list("ocelot")())
+--ocelot.log("loaded")
 
 _G.componentlib = {["additions"] = {}, ["removals"] = {}}
 compLib.virtual = {}
@@ -54,7 +54,7 @@ end
 
 function compLib.proxy(address)
   if componentlib.additions[address] then
-    ocelot.log("vcomponent")
+    --ocelot.log("vcomponent")
     return componentlib.additions[address].proxy
   else
     return LLcomponent.proxy(address)
@@ -62,9 +62,9 @@ function compLib.proxy(address)
 end
 
 function compLib.invoke(address, funcName, ...)
-  ocelot.log("Invoking " .. funcName .. " from " .. address)
+  --ocelot.log("Invoking " .. funcName .. " from " .. address)
   if componentlib.additions[address] then
-    ocelot.log("vcomponent")
+    --ocelot.log("vcomponent")
     return componentlib.additions[address].proxy[funcName](...)
   else
     return LLcomponent.invoke(address, funcName, ...)
