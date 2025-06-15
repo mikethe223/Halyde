@@ -7,7 +7,7 @@ _G.cormgr.labelList = {}
 local component = import("component")
 local filesystem = import("filesystem")
 local json = import("json")
-local gpu = component.proxy(component.list("gpu")())
+local gpu = component.gpu
 
 function _G.cormgr.loadCoroutine(path,...)
   local args = {...}

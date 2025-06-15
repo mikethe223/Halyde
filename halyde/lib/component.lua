@@ -84,4 +84,13 @@ function compLib.get(address)
   return nil, "full address not found"
 end
 
+-- Add main component proxies to the library
+setmetatable(compLib, {["__index"] = function(_, item)
+  if compLib.list(item)() then
+    return compLib.proxy(compLib.list(item)())
+  else
+    return compLib[item]
+  end
+end})
+
 return compLib

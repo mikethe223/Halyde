@@ -12,7 +12,7 @@ if not component.list("internet")() then
   print("\27[91mThis program requires an internet card to run.")
   return
 end
-local internet = component.proxy(component.list("internet")())
+local internet = component.internet
 local source
 if table.find(packages, "-s") then
   source = table.remove(packages, table.find(packages, "-s") + 1)
