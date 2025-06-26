@@ -10,7 +10,7 @@ local raster = {
 
 local component = import("component")
 -- local ocelot = component.proxy(component.list("ocelot")())
-local gpu = component.proxy(component.list("gpu")())
+local gpu = component.gpu
 
 local display = {}
 local chunksAffected = {}

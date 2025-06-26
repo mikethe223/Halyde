@@ -10,7 +10,7 @@ local shellcfg = json.decode(data)
 import("/halyde/core/termlib.lua")
 local event = import("event")
 local component = import("component")
-local gpu = component.proxy(component.list("gpu")())
+local gpu = component.gpu
 
 _G.shell = {}
 _G.shell.workingDirectory = shellcfg["defaultWorkingDirectory"]

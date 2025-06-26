@@ -12,7 +12,7 @@ if not component.list("internet")() then
   print("\27[91mThis program requires an internet card to run.")
   return
 end
-local internet = component.proxy(component.list("internet")())
+local internet = component.internet
 local source
 if table.find(packages, "-s") then
   source = table.remove(packages, table.find(packages, "-s") + 1)
@@ -468,12 +468,40 @@ elseif command == "update" then
     end
   end
   while true do
+    local nonexistent = false -- I couldn't figure out a better way to do this, so I have to use a flag if the package doesn't exist
     if not fs.exists("/argentum/store/" .. packages[i]) then
       print("\27[91mPackage " .. packages[i] .. " is not installed.")
       table.insert(fails, packages[i])
       table.remove(packageList, table.find(packageList, packages[i]))
       table.remove(packages, table.find(packages, packages[i]))
       i = i - 1
+      nonexistent = true
+    end
+    if not nonexistent then
+    -- Check if up to date
+      local agcfg = getAgConfig(packages[i], source)
+      if not agcfg then
+        return false
+      end
+      local handle, data, tmpdata = fs.open("/argentum/store/" .. packages[i] .. "/package.cfg", "r"), "", nil
+      repeat
+        tmpdata = handle:read(math.huge)
+        data = data .. (tmpdata or "")
+      until not tmpdata
+      handle:close()
+      local version = "0.0.0"
+      for line in (data.."\n"):gmatch("(.-)\n") do
+        if line:sub(1, 1) == "V" then
+          version = line:sub(2)
+          break
+        end
+      end
+      if agcfg[packages[i]].version == version then
+        print(packages[i] .. " is up to date")
+        table.remove(packageList, table.find(packageList, packages[i]))
+        table.remove(packages, table.find(packages, packages[i]))
+        i = i - 1
+      end
     end
     i = i + 1
     if i > #packages then
@@ -481,14 +509,19 @@ elseif command == "update" then
     end
   end
   local answer
-  if #fails == 0 then
+  if #packageList == 0 then
+    if #fails == 0 then
+      print("All packages are up to date.")
+      return
+    else
+      print("None of the packages can be updated.")
+      return
+    end
+  elseif #fails == 0 then
     print("Packages that will be updated: " .. table.concat(packageList, ", "))
     if read(nil, "Would you like to proceed? [Y/n] "):lower() == "n" then
       return
     end
-  elseif #packageList == 0 then
-    print("None of the packages can be updated.")
-    return
   else
     print("Some packages cannot be updated.")
     print("Packages that will be updated: " .. table.concat(packageList, ", "))
@@ -502,40 +535,29 @@ elseif command == "update" then
   end
   fails = {}
   for _, package in pairs(packages) do
-    local agcfg = getAgConfig(package, source)
-    if not agcfg then
-      return false
-    end
-    local handle, data, tmpdata = fs.open("/argentum/store/" .. package .. "/package.cfg", "r"), "", nil
-    repeat
-      tmpdata = handle:read(math.huge)
-      data = data .. (tmpdata or "")
-    until not tmpdata
-    handle:close()
-    local version = "0.0.0"
-    for line in (data.."\n"):gmatch("(.-)\n") do
-      if line:sub(1, 1) == "V" then
-        version = line:sub(2)
-        break
-      end
-    end
-    local handle, data, tmpdata = fs.open("/argentum/store/" .. package .. "/package.cfg", "r"), "", nil
-    repeat
-      tmpdata = handle:read(math.huge)
-      data = data .. (tmpdata or "")
-    until not tmpdata
-    handle:close()
-    local version = "0.0.0"
-    for line in (data.."\n"):gmatch("(.-)\n") do
-      if line:sub(1, 1) == "V" then
-        version = line:sub(2)
-        break
-      end
-    end
-    if agcfg[package].version == version then
-      print(package .. " is up to date")
-      goto skip
-    end
+    -- Previous up-to-date check
+
+    --local agcfg = getAgConfig(package, source)
+    --if not agcfg then
+    --  return false
+    --end
+    --local handle, data, tmpdata = fs.open("/argentum/store/" .. package .. "/package.cfg", "r"), "", nil
+    --repeat
+    --  tmpdata = handle:read(math.huge)
+    --  data = data .. (tmpdata or "")
+    --until not tmpdata
+    --handle:close()
+    --local version = "0.0.0"
+    --for line in (data.."\n"):gmatch("(.-)\n") do
+    --  if line:sub(1, 1) == "V" then
+    --    version = line:sub(2)
+    --    break
+    --  end
+    --end
+    --if agcfg[package].version == version then
+    --  print(package .. " is up to date")
+    --  goto skip
+    --end
     if not updatePackage(package) then
       table.insert(fails, packages[i])
       table.remove(packageList, table.find(packageList, packages[i]))
